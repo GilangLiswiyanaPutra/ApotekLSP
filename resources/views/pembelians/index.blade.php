@@ -103,6 +103,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{asset('vendors/js/vendor.bundle.base.js')}}"></script>
 <script>
     $(document).ready(function() {
         let cartItems = [];

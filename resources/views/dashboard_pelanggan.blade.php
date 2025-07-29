@@ -101,6 +101,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{asset('vendors/js/vendor.bundle.base.js')}}"></script>
 {{-- Kode JavaScript untuk Transaksi Pembelian --}}
 <script>
 $(document).ready(function() {
