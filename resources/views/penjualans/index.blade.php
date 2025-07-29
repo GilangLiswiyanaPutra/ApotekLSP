@@ -17,6 +17,34 @@
         border-radius: 10px;
         background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Menambahkan overlay indicator untuk click */
+    .product-card::before {
+        content: '🛒 Klik untuk tambah ke keranjang';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 123, 255, 0.9);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+        font-size: 14px;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .product-card:hover::before {
+        opacity: 1;
     }
     
     .product-card:hover { 
@@ -24,6 +52,18 @@
         transform: translateY(-8px);
         box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
         background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+    }
+    
+    /* Loading state untuk card yang diklik */
+    .product-card.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    
+    .product-card.loading::before {
+        content: '⏳ Menambahkan...';
+        opacity: 1;
+        background: rgba(40, 167, 69, 0.9);
     }
     
     .product-image {
@@ -383,36 +423,52 @@ window.addEventListener('load', function () {
             });
         });
 
-        // Add to cart functionality
+        // Add to cart functionality with loading state
         $(document).on('click', '.product-card', function() {
-            const itemData = {
-                id: $(this).data('id'),
-                kode: $(this).data('kode'),
-                nama: $(this).data('nama'),
-                harga: parseFloat($(this).data('harga')),
-                stok: parseInt($(this).data('stok')),
-            };
-
-            if (itemData.stok <= 0) {
-                alert('❌ Stok obat tidak tersedia!');
+            const $card = $(this);
+            
+            // Prevent double clicks during processing
+            if ($card.hasClass('loading')) {
                 return;
             }
-
-            const existingItem = cartItems.find(item => item.id === itemData.id);
             
-            if (existingItem) {
-                if (existingItem.jumlah < itemData.stok) {
-                    existingItem.jumlah++;
-                    showNotification(`✅ ${itemData.nama} ditambahkan ke keranjang`);
-                } else {
-                    showNotification(`⚠️ Stok ${itemData.nama} tidak mencukupi!`);
+            // Add loading state
+            $card.addClass('loading');
+            
+            const itemData = {
+                id: $card.data('id'),
+                kode: $card.data('kode'),
+                nama: $card.data('nama'),
+                harga: parseFloat($card.data('harga')),
+                stok: parseInt($card.data('stok')),
+            };
+
+            // Simulate brief loading for better UX
+            setTimeout(() => {
+                if (itemData.stok <= 0) {
+                    $card.removeClass('loading');
+                    showNotification('❌ Stok obat tidak tersedia!', 'danger');
+                    return;
                 }
-            } else {
-                itemData.jumlah = 1;
-                cartItems.push(itemData);
-                showNotification(`✅ ${itemData.nama} ditambahkan ke keranjang`);
-            }
-            renderCart();
+
+                const existingItem = cartItems.find(item => item.id === itemData.id);
+                
+                if (existingItem) {
+                    if (existingItem.jumlah < itemData.stok) {
+                        existingItem.jumlah++;
+                        showNotification(`✅ ${itemData.nama} ditambahkan ke keranjang (${existingItem.jumlah} pcs)`, 'success');
+                    } else {
+                        showNotification(`⚠️ Stok ${itemData.nama} tidak mencukupi! (Max: ${itemData.stok} pcs)`, 'warning');
+                    }
+                } else {
+                    itemData.jumlah = 1;
+                    cartItems.push(itemData);
+                    showNotification(`✅ ${itemData.nama} ditambahkan ke keranjang`, 'success');
+                }
+                
+                renderCart();
+                $card.removeClass('loading');
+            }, 300);
         });
 
         // Change quantity
@@ -528,13 +584,20 @@ window.addEventListener('load', function () {
             }).format(angka);
         }
 
-        // Show notification
-        function showNotification(message) {
-            // Simple notification - you can replace with better notification library
+        // Show notification with type
+        function showNotification(message, type = 'info') {
+            // Mapping type to Bootstrap alert classes
+            const alertClass = {
+                'success': 'alert-success',
+                'danger': 'alert-danger', 
+                'warning': 'alert-warning',
+                'info': 'alert-info'
+            };
+            
             const notification = $(`
-                <div class="alert alert-info alert-dismissible fade show position-fixed" 
-                     style="top: 20px; right: 20px; z-index: 9999; max-width: 300px;">
-                    ${message}
+                <div class="alert ${alertClass[type]} alert-dismissible fade show position-fixed" 
+                     style="top: 20px; right: 20px; z-index: 9999; max-width: 350px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <strong>${message}</strong>
                     <button type="button" class="close" data-dismiss="alert">
                         <span>&times;</span>
                     </button>
@@ -542,9 +605,11 @@ window.addEventListener('load', function () {
             `);
             
             $('body').append(notification);
+            
+            // Auto dismiss notification
             setTimeout(() => {
                 notification.alert('close');
-            }, 3000);
+            }, type === 'success' ? 2000 : 4000);
         }
 
         // Form submission validation
