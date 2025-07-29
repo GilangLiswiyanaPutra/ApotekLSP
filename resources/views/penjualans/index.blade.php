@@ -301,8 +301,8 @@
                                             </div>
                                             
                                             <div class="product-image" style="position: relative;">
-                                                @if($obat->gambar && file_exists(public_path('storage/obat/' . $obat->gambar)))
-                                                    <img src="{{ asset('storage/obat/' . $obat->gambar) }}" 
+                                                @if($obat->gambar && file_exists(public_path('storage/' . $obat->gambar)))
+                                                    <img src="{{ asset('storage/' . $obat->gambar) }}" 
                                                          alt="{{ $obat->nama }}" class="product-image" 
                                                          style="cursor: pointer; z-index: 3;">
                                                 @else
@@ -352,8 +352,8 @@
                                                 </div>
                                                 
                                                 <div class="product-image" style="position: relative;">
-                                                    @if($obat->gambar && file_exists(public_path('storage/obat/' . $obat->gambar)))
-                                                        <img src="{{ asset('storage/obat/' . $obat->gambar) }}" 
+                                                    @if($obat->gambar && file_exists(public_path('storage/' . $obat->gambar)))
+                                                        <img src="{{ asset('storage/' . $obat->gambar) }}" 
                                                              alt="{{ $obat->nama }}" class="product-image"
                                                              style="cursor: pointer; z-index: 3;">
                                                     @else
