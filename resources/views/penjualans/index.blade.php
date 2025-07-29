@@ -37,10 +37,11 @@
         font-weight: bold;
         opacity: 0;
         transition: opacity 0.3s ease;
-        z-index: 2;
+        z-index: 1;
         font-size: 14px;
         text-align: center;
         padding: 10px;
+        pointer-events: none; /* Allow clicks to pass through */
     }
     
     .product-card:hover::before {
@@ -77,6 +78,42 @@
         justify-content: center;
         color: #666;
         font-size: 40px;
+        position: relative;
+        z-index: 2; /* Ensure image is above the overlay */
+        transition: all 0.3s ease;
+    }
+    
+    .product-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    }
+    
+    .product-image img:hover {
+        filter: brightness(1.1);
+    }
+    
+    /* Image click indicator */
+    .product-image::after {
+        content: '🔍 Klik untuk melihat gambar';
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 500;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 4;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+    
+    .product-image:hover::after {
+        opacity: 1;
     }
     
     .cart-items { 
@@ -235,12 +272,13 @@
                                                 {{ $obat->stok }} pcs
                                             </div>
                                             
-                                            <div class="product-image">
+                                            <div class="product-image" style="position: relative;">
                                                 @if($obat->gambar && file_exists(public_path('storage/obat/' . $obat->gambar)))
                                                     <img src="{{ asset('storage/obat/' . $obat->gambar) }}" 
-                                                         alt="{{ $obat->nama }}" class="product-image">
+                                                         alt="{{ $obat->nama }}" class="product-image" 
+                                                         style="cursor: pointer; z-index: 3;">
                                                 @else
-                                                    <i class="fas fa-pills"></i>
+                                                    <i class="fas fa-pills" style="z-index: 3;"></i>
                                                 @endif
                                             </div>
                                             
@@ -285,12 +323,13 @@
                                                     {{ $obat->stok }} pcs
                                                 </div>
                                                 
-                                                <div class="product-image">
+                                                <div class="product-image" style="position: relative;">
                                                     @if($obat->gambar && file_exists(public_path('storage/obat/' . $obat->gambar)))
                                                         <img src="{{ asset('storage/obat/' . $obat->gambar) }}" 
-                                                             alt="{{ $obat->nama }}" class="product-image">
+                                                             alt="{{ $obat->nama }}" class="product-image"
+                                                             style="cursor: pointer; z-index: 3;">
                                                     @else
-                                                        <i class="fas fa-pills"></i>
+                                                        <i class="fas fa-pills" style="z-index: 3;"></i>
                                                     @endif
                                                 </div>
                                                 
@@ -424,11 +463,18 @@ window.addEventListener('load', function () {
         });
 
         // Add to cart functionality with loading state
-        $(document).on('click', '.product-card', function() {
+        $(document).on('click', '.product-card', function(e) {
             const $card = $(this);
             
             // Prevent double clicks during processing
             if ($card.hasClass('loading')) {
+                return;
+            }
+            
+            // Check if clicked on image - handle image click separately
+            if ($(e.target).closest('.product-image').length > 0) {
+                e.stopPropagation(); // Prevent cart addition when clicking on image
+                handleImageClick($card, e);
                 return;
             }
             
@@ -573,6 +619,52 @@ window.addEventListener('load', function () {
             
             $('#total-harga').text(formatRupiah(grandTotal));
             $('#total-items').text(totalItems + ' item');
+        }
+
+        // Handle image click for viewing
+        function handleImageClick($card, e) {
+            const imageUrl = $card.find('.product-image img').attr('src');
+            const productName = $card.data('nama');
+            
+            if (imageUrl) {
+                // Create image modal
+                const modal = $(`
+                    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                            <div class="modal-content bg-dark">
+                                <div class="modal-header border-secondary">
+                                    <h5 class="modal-title text-white">${productName}</h5>
+                                    <button type="button" class="close text-white" data-dismiss="modal">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body text-center p-0">
+                                    <img src="${imageUrl}" alt="${productName}" 
+                                         class="img-fluid" style="max-height: 500px; object-fit: contain;">
+                                </div>
+                                <div class="modal-footer border-secondary">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                    <button type="button" class="btn btn-primary" onclick="$(this).closest('.modal').modal('hide'); $('.product-card[data-nama=&quot;${productName}&quot;]').click();">
+                                        🛒 Tambah ke Keranjang
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                
+                // Remove existing modal if any
+                $('#imageModal').remove();
+                
+                // Add modal to body and show
+                $('body').append(modal);
+                $('#imageModal').modal('show');
+                
+                // Remove modal when hidden
+                $('#imageModal').on('hidden.bs.modal', function() {
+                    $(this).remove();
+                });
+            }
         }
 
         // Format currency
