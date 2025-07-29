@@ -443,6 +443,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{asset('vendors/js/vendor.bundle.base.js')}}"></script>
 <script>
 // Enhanced JavaScript for better cart functionality and search
 window.addEventListener('load', function () {
