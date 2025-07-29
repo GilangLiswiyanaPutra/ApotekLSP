@@ -1,6 +1,7 @@
 <div class="col-lg-4 col-md-6 col-sm-6 mb-3">
     <div class="card product-card bg-dark" 
          data-id="{{ $obat->id }}" 
+         data-kode="{{ $obat->kode_obat }}"
          data-nama="{{ $obat->nama }}" 
          data-harga="{{ $obat->harga_jual }}" 
          data-stok="{{ $obat->stok }}">

@@ -44,6 +44,7 @@
                             {{-- Kartu produk yang bisa diklik --}}
                             <div class="card product-card bg-dark" 
                                  data-id="{{ $obat->id }}" 
+                                 data-kode="{{ $obat->kode_obat }}"
                                  data-nama="{{ $obat->nama }}" 
                                  data-stok="{{ $obat->stok }}"
                                  data-harga="{{ $obat->harga_jual }}">
