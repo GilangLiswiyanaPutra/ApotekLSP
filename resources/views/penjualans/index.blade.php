@@ -417,14 +417,55 @@
                     <h5 class="card-title text-white">📋 Transaksi Terakhir</h5>
                     <div class="list-group list-group-flush">
                         @forelse($recentSales as $sale)
-                            <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-secondary">
-                                <div>
-                                    <a href="{{ route('penjualans.show', $sale->nota) }}" class="text-primary text-decoration-none">
-                                        {{ $sale->nota }}
-                                    </a>
-                                    <br><small class="text-muted">{{ $sale->tanggal_nota }}</small>
+                            <div class="list-group-item bg-transparent border-secondary mb-2" style="border-radius: 8px;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <a href="{{ route('penjualans.show', $sale->nota) }}" class="text-primary text-decoration-none fw-bold">
+                                            {{ $sale->nota }}
+                                        </a>
+                                        <br><small class="text-muted">{{ \Carbon\Carbon::parse($sale->tanggal_nota)->format('d/m/Y H:i') }}</small>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="badge badge-primary badge-pill">
+                                            {{ $sale->details->count() }} Item{{ $sale->details->count() > 1 ? 's' : '' }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <span class="badge badge-primary badge-pill">📄</span>
+                                
+                                @if($sale->details && $sale->details->count() > 0)
+                                    <div class="mt-2">
+                                        <small class="text-white-50">Obat yang dibeli:</small>
+                                        <div class="mt-1">
+                                            @foreach($sale->details->take(3) as $index => $detail)
+                                                @if($detail->obat)
+                                                    <span class="badge badge-outline-info me-1 mb-1" style="background: rgba(0,123,255,0.1); color: #17a2b8; border: 1px solid #17a2b8;">
+                                                        <i class="fas fa-pills"></i> {{ $detail->obat->nama }} ({{ $detail->jumlah }}x)
+                                                    </span>
+                                                @endif
+                                            @endforeach
+                                            @if($sale->details->count() > 3)
+                                                <small class="text-muted">...dan {{ $sale->details->count() - 3 }} obat lainnya</small>
+                                            @endif
+                                        </div>
+                                        
+                                        @if($sale->details->where('obat', '!=', null)->count() > 0)
+                                            @php
+                                                $totalAmount = $sale->details->sum(function($detail) {
+                                                    return $detail->obat ? $detail->obat->harga_jual * $detail->jumlah : 0;
+                                                });
+                                            @endphp
+                                            <div class="mt-2">
+                                                <small class="text-success fw-bold">
+                                                    <i class="fas fa-money-bill-wave"></i> Total: Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                                                </small>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <small class="text-warning">
+                                        <i class="fas fa-exclamation-triangle"></i> Detail transaksi tidak ditemukan
+                                    </small>
+                                @endif
                             </div>
                         @empty
                             <div class="list-group-item bg-transparent border-0">

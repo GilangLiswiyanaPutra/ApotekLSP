@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('detail_penjualans', function (Blueprint $table) {
              $table->string('nota', 50);
-            $table->integer('kode_obat')->default(0);
+            $table->string('kode_obat');
             $table->integer('jumlah');
         });
     }

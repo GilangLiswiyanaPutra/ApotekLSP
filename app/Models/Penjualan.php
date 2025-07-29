@@ -24,4 +24,12 @@ class Penjualan extends Model
     {
         return $this->hasMany(DetailPenjualan::class, 'nota', 'nota');
     }
+
+    /**
+     * Relasi ke User: Satu penjualan dibuat oleh satu user
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
 }
