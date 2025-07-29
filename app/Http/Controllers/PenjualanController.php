@@ -20,7 +20,7 @@ class PenjualanController extends Controller
     {
         $jenisObat = Obat::select('jenis')->where('stok', '>', 0)->distinct()->get();
         $obatsByJenis = Obat::where('stok', '>', 0)->get()->groupBy('jenis');
-        $recentSales = Penjualan::latest('tanggal_nota')->take(10)->get();
+        $recentSales = Penjualan::with('details.obat')->latest('tanggal_nota')->take(10)->get();
 
         return view('penjualans.index', compact('jenisObat', 'obatsByJenis', 'recentSales'));
     }
