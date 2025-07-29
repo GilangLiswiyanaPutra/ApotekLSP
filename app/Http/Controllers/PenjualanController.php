@@ -33,7 +33,7 @@ class PenjualanController extends Controller
     {
         $request->validate([
             'items' => 'required|array|min:1',
-            'items.*.kode_obat' => 'required|integer|exists:obat,kode_obat',
+            'items.*.kode_obat' => 'required|string|exists:obats,kode_obat',
             'items.*.jumlah' => 'required|integer|min:1',
         ]);
 
@@ -57,7 +57,10 @@ class PenjualanController extends Controller
 
                 // Loop untuk detail & stok
                 foreach ($request->items as $item) {
-                    $obat = Obat::find($item['kode_obat']);
+                    $obat = Obat::where('kode_obat', $item['kode_obat'])->first();
+                    if (!$obat) {
+                        throw new Exception("Obat dengan kode '{$item['kode_obat']}' tidak ditemukan.");
+                    }
                     if ($obat->stok < $item['jumlah']) {
                         throw new Exception("Stok untuk '{$obat->nama}' tidak mencukupi.");
                     }
