@@ -1,0 +1,127 @@
+@extends('layouts.app')
+
+@section('title', 'Manajemen Data Obat')
+
+@push('styles')
+<style>
+    .clickable-row { cursor: pointer; }
+</style>
+@endpush
+
+@section('content')
+<div class="row">
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Data Obat</h4>
+                <p class="card-description">Daftar obat yang tersedia.</p>
+                
+                @if(session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+                
+                {{-- [RAPihkan] Tombol Tambah dan Form Filter digabung dalam satu baris --}}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    {{-- Tombol Tambah Obat --}}
+                    <div>
+                        <a href="{{ route('obats.create') }}" class="btn btn-primary btn-fw">
+                            <i class="mdi mdi-plus"></i> Tambah Obat
+                        </a>
+                    </div>
+
+                    {{-- Form Filter dan Pencarian yang Sudah Dirapikan --}}
+                    <div>
+                        <form method="GET" action="{{ route('obats.index') }}" class="d-flex">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control" placeholder="Cari nama obat..." value="{{ request('search') }}">
+                                <select name="jenis" class="form-control">
+                                    <option value="">Semua Jenis</option>
+                                    @foreach($all_jenis ?? [] as $jenis)
+                                        <option value="{{ $jenis }}" {{ request('jenis') == $jenis ? 'selected' : '' }}>{{ $jenis }}</option>
+                                    @endforeach
+                                </select>
+                                <select name="supplier" class="form-control">
+                                    <option value="">Semua Supplier</option>
+                                    @foreach($all_suppliers ?? [] as $supplier)
+                                        <option value="{{ $supplier }}" {{ request('supplier') == $supplier ? 'selected' : '' }}>{{ $supplier }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="btn btn-primary"><i class="mdi mdi-magnify"></i></button>
+                                <!-- <a href="{{ route('obats.index') }}" class="btn btn-dark"><i class="mdi mdi-reload"></i></a> -->
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Kode Obat</th>
+                                <th>Nama Obat</th>
+                                <th>Jenis</th>
+                                <th>Stok</th>
+                                <th>Harga Jual</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($obats as $obat)
+                                <tr class="clickable-row" data-href="{{ route('obats.show', $obat->id) }}">
+                                    <td><span class="badge badge-dark">{{ $obat->kode_obat }}</span></td>
+                                    <td>{{ $obat->nama }}</td>
+                                    <td><label class="badge badge-gradient-success">{{ $obat->jenis }}</label></td>
+                                    <td>{{ $obat->stok }} {{ $obat->satuan }}</td>
+                                    <td>Rp {{ number_format($obat->harga_jual, 0, ',', '.') }}</td>
+                                    {{-- [FIX] Mengembalikan Tombol Aksi yang Hilang --}}
+                                    <td>
+                                        <a href="{{ route('obats.edit', $obat->id) }}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
+                                        <form action="{{ route('obats.destroy', $obat->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    {{-- Sesuaikan colspan dengan jumlah kolom yang benar (6) --}}
+                                    <td colspan="6" class="text-center">Data obat tidak ditemukan.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                
+                {{-- [FIX] Mengembalikan Paginasi yang Hilang --}}
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div>
+                        @if($obats->total() > 0)
+                            Showing {{ $obats->firstItem() }} to {{ $obats->lastItem() }} of {{ $obats->total() }} results
+                        @endif
+                    </div>
+                    <div>
+                        {{ $obats->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Mencegah navigasi jika yang diklik adalah elemen interaktif di dalam baris
+                if (e.target.closest('a, button, form')) {
+                    return;
+                }
+                window.location.href = this.dataset.href;
+            });
+        });
+    });
+</script>
+@endpush
