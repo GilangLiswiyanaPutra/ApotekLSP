@@ -88,6 +88,18 @@
                     <span class="menu-title">Pembelian</span>
                 </a>
             </li>
+            <li class="nav-item menu-items {{ Request::is('penjualans') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('penjualans.index') }}">
+                    <span class="menu-icon"><i class="mdi mdi-cash-register"></i></span>
+                    <span class="menu-title">Transaksi Penjualan</span>
+                </a>
+            </li>
+            <li class="nav-item menu-items {{ Request::is('riwayat-penjualan') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('penjualans.riwayat') }}">
+                    <span class="menu-icon"><i class="mdi mdi-history"></i></span>
+                    <span class="menu-title">Riwayat Penjualan</span>
+                </a>
+            </li>
         @endif
         
          <li class="nav-item menu-items">

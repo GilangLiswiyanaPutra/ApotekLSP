@@ -48,4 +48,5 @@ Route::resource('apotekers', ApotekerController::class)->parameters(['apotekers'
 Route::resource('pembelians', PembelianController::class);
 
 Route::resource('penjualans', PenjualanController::class);
+Route::get('/riwayat-penjualan', [PenjualanController::class, 'riwayatPenjualan'])->name('penjualans.riwayat');
 
