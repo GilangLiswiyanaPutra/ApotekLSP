@@ -216,6 +216,29 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Display Success/Error Messages --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i>
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            @foreach($errors->all() as $error)
+                {{ $error }}<br>
+            @endforeach
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="text-white mb-0">💊 Sistem Penjualan Obat</h2>
@@ -230,9 +253,14 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title text-white mb-0">🔍 Pilih Obat</h4>
-                        <div class="search-container" style="width: 300px;">
-                            <input type="text" id="search-obat" class="form-control search-box" 
-                                   placeholder="🔍 Cari nama obat..." autocomplete="off">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ route('penjualans.riwayat') }}" class="btn btn-outline-info btn-sm me-3">
+                                <i class="fas fa-history"></i> Riwayat Penjualan
+                            </a>
+                            <div class="search-container" style="width: 300px;">
+                                <input type="text" id="search-obat" class="form-control search-box" 
+                                       placeholder="🔍 Cari nama obat..." autocomplete="off">
+                            </div>
                         </div>
                     </div>
                     
@@ -403,7 +431,7 @@
                                     <h5 id="total-harga" class="text-success mb-0">Rp 0</h5>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block" id="process-transaction" disabled>
+                            <button type="submit" class="btn btn-primary btn-block btn-lg" id="process-transaction" disabled>
                                 💳 PROSES TRANSAKSI
                             </button>
                         </div>
@@ -748,9 +776,11 @@ window.addEventListener('load', function () {
 
         // Form submission validation
         $('#form-penjualan').on('submit', function(e) {
+            console.log('Form submitted, cart items:', cartItems.length);
+            
             if (cartItems.length === 0) {
                 e.preventDefault();
-                showNotification('❌ Keranjang masih kosong!');
+                showNotification('❌ Keranjang masih kosong!', 'danger');
                 return false;
             }
             
@@ -761,6 +791,10 @@ window.addEventListener('load', function () {
                 e.preventDefault();
                 return false;
             }
+            
+            // Show loading state
+            $('#process-transaction').prop('disabled', true).html('⏳ Memproses...');
+            showNotification('💳 Memproses transaksi...', 'info');
         });
     });
 });

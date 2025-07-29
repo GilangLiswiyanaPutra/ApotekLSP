@@ -111,6 +111,30 @@ class PenjualanController extends Controller
     // return view('afterland.purchase_list_pelanggan', compact('semuaPenjualan'));
 }
 
+    /**
+     * Menampilkan riwayat penjualan dengan detail obat yang dibeli
+     * Route: GET /riwayat-penjualan (penjualans.riwayat)
+     */
+    public function riwayatPenjualan()
+    {
+        // Ambil semua data penjualan dengan detail dan informasi obat
+        $riwayatPenjualan = Penjualan::with(['details.obat', 'user'])
+                                    ->latest('tanggal_nota')
+                                    ->paginate(20);
+
+        // Hitung statistik
+        $totalTransaksi = Penjualan::count();
+        $totalObatTerjual = DetailPenjualan::sum('jumlah');
+        $obatTerlaris = DetailPenjualan::with('obat')
+                                      ->selectRaw('kode_obat, SUM(jumlah) as total_terjual')
+                                      ->groupBy('kode_obat')
+                                      ->orderBy('total_terjual', 'desc')
+                                      ->limit(5)
+                                      ->get();
+
+        return view('penjualans.riwayat', compact('riwayatPenjualan', 'totalTransaksi', 'totalObatTerjual', 'obatTerlaris'));
+    }
+
     // Method lain dari resource (create, edit, update, destroy) bisa Anda implementasikan nanti
     // jika ingin ada fitur manajemen riwayat penjualan.
 }
