@@ -21,32 +21,7 @@
         overflow: hidden;
     }
     
-    /* Menambahkan overlay indicator untuk click */
-    .product-card::before {
-        content: '🛒 Klik untuk tambah ke keranjang';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 123, 255, 0.9);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 1;
-        font-size: 14px;
-        text-align: center;
-        padding: 10px;
-        pointer-events: none; /* Allow clicks to pass through */
-    }
-    
-    .product-card:hover::before {
-        opacity: 1;
-    }
+
     
     .product-card:hover { 
         border-color: #007bff; 
