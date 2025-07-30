@@ -28,15 +28,9 @@ class LoginController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
-            // 3. [PENTING] Arahkan berdasarkan role
-            if ($user->role === 'pelanggan') {
-                // Jika role adalah 'pelanggan', arahkan ke dashboard
-                return redirect()->intended('/dashboard_pelanggan');
-            }
-
-            // Untuk role lainnya (admin, apoteker), arahkan ke halaman lain
-            // Misalnya, kita arahkan ke halaman manajemen obat
-            return redirect()->intended('/obats');
+            // 3. [PENTING] Arahkan semua role ke halaman penjualan index
+            // Untuk semua role (admin, apoteker, pelanggan), arahkan ke penjualan
+            return redirect()->intended('/penjualans');
         }
 
         // 4. Jika login gagal
