@@ -200,7 +200,7 @@ class PenjualanController extends Controller
                 
                 foreach ($request->nota_list as $nota) {
                     // Cari penjualan dengan detailnya
-                    $penjualan = Penjualan::with('details.obat')->find($nota);
+                    $penjualan = Penjualan::with('details.obat')->where('nota', $nota)->first();
                     
                     if ($penjualan) {
                         // Kembalikan stok untuk setiap obat yang terjual

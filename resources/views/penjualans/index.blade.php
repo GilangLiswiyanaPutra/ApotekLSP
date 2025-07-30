@@ -628,19 +628,29 @@ window.addEventListener('load', function () {
             }, 300);
         });
 
-        // Change quantity
-        $(document).on('change', '.item-jumlah', function() {
+        // Change quantity with plus/minus buttons
+        $(document).on('click', '.increase-qty', function() {
             const itemId = $(this).data('id');
-            const newJumlah = parseInt($(this).val());
             const item = cartItems.find(item => item.id === itemId);
             
-            if (item && newJumlah > 0 && newJumlah <= item.stok) {
-                item.jumlah = newJumlah;
+            if (item && item.jumlah < item.stok) {
+                item.jumlah++;
+                renderCart();
             } else if (item) {
-                $(this).val(item.jumlah);
-                showNotification(`⚠️ Jumlah tidak valid untuk ${item.nama}`);
+                showNotification(`⚠️ Stok ${item.nama} tidak mencukupi`);
             }
-            renderCart();
+        });
+
+        $(document).on('click', '.decrease-qty', function() {
+            const itemId = $(this).data('id');
+            const item = cartItems.find(item => item.id === itemId);
+            
+            if (item && item.jumlah > 1) {
+                item.jumlah--;
+                renderCart();
+            } else if (item && item.jumlah === 1) {
+                showNotification(`⚠️ Jumlah minimal adalah 1. Gunakan tombol hapus untuk menghapus item.`);
+            }
         });
 
         // Remove item
@@ -704,9 +714,11 @@ window.addEventListener('load', function () {
                                 <small class="text-success">${formatRupiah(item.harga)}/pcs</small>
                             </td>
                             <td class="text-center">
-                                <input type="number" class="form-control form-control-sm item-jumlah bg-secondary text-white text-center" 
-                                       value="${item.jumlah}" min="1" max="${item.stok}" data-id="${item.id}" 
-                                       style="width: 60px; margin: 0 auto;">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm me-1 decrease-qty" data-id="${item.id}" style="width: 25px; height: 25px; padding: 0;">-</button>
+                                    <span class="text-white font-weight-bold mx-2" id="qty-${item.id}">${item.jumlah}</span>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm ms-1 increase-qty" data-id="${item.id}" style="width: 25px; height: 25px; padding: 0;">+</button>
+                                </div>
                                 <small class="text-muted">max: ${item.stok}</small>
                             </td>
                             <td class="text-right">
