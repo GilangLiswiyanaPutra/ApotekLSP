@@ -11,11 +11,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
 
-Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('index');
+Route::get('/', [PenjualanController::class, 'index'])->middleware('auth')->name('index');
 Route::post('/obat/beli', [DashboardController::class, 'purchase'])->middleware('auth')->name('obat.purchase');
 
-// Arahkan URL root ke dashboard juga
-Route::get('/dashboard', [DashboardController::class, 'index'])
+// Arahkan URL root ke penjualan index (halaman utama baru)
+Route::get('/dashboard', [PenjualanController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
 

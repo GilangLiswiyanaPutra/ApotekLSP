@@ -49,10 +49,10 @@
         <li class="nav-item nav-category"><span class="nav-link">Navigation</span></li>
         
         {{-- [FIX] Menambahkan class 'active' secara dinamis --}}
-        <li class="nav-item menu-items {{ Request::is('dashboard*') ? 'active' : '' }}">
+        <li class="nav-item menu-items {{ Request::is('dashboard*') || Request::is('/') || Request::routeIs('index') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('dashboard') }}">
-                <span class="menu-icon"><i class="mdi mdi-speedometer"></i></span>
-                <span class="menu-title">Dashboard</span>
+                <span class="menu-icon"><i class="mdi mdi-cash-register"></i></span>
+                <span class="menu-title">Beranda - Transaksi</span>
             </a>
         </li>
         
@@ -88,12 +88,7 @@
                     <span class="menu-title">Pembelian</span>
                 </a>
             </li>
-            <li class="nav-item menu-items {{ Request::is('penjualans') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('penjualans.index') }}">
-                    <span class="menu-icon"><i class="mdi mdi-cash-register"></i></span>
-                    <span class="menu-title">Transaksi Penjualan</span>
-                </a>
-            </li>
+            {{-- Transaksi Penjualan sekarang adalah halaman utama (dashboard) --}}
             <li class="nav-item menu-items {{ Request::is('riwayat-penjualan') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('penjualans.riwayat') }}">
                     <span class="menu-icon"><i class="mdi mdi-history"></i></span>
