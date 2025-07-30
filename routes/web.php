@@ -49,4 +49,5 @@ Route::resource('pembelians', PembelianController::class);
 
 Route::resource('penjualans', PenjualanController::class);
 Route::get('/riwayat-penjualan', [PenjualanController::class, 'riwayatPenjualan'])->name('penjualans.riwayat');
+Route::post('/penjualans/bulk-delete', [PenjualanController::class, 'bulkDestroy'])->name('penjualans.bulkDestroy');
 

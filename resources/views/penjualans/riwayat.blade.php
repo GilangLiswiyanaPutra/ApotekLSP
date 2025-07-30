@@ -309,6 +309,18 @@
                          data-date="{{ $penjualan->tanggal_nota }}">
                         <div class="card-body">
                             <div class="row">
+                                <div class="col-12 mb-2" style="display: none;" id="bulk-checkbox-{{ $penjualan->nota }}">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input transaction-checkbox" 
+                                               id="checkbox-{{ $penjualan->nota }}" value="{{ $penjualan->nota }}"
+                                               onchange="updateBulkDeleteButton()">
+                                        <label class="custom-control-label text-white" for="checkbox-{{ $penjualan->nota }}">
+                                            <strong>Pilih untuk dihapus</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-8">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <div>
@@ -417,9 +429,14 @@
                                        class="btn btn-outline-primary btn-sm mb-2 btn-block">
                                         <i class="fas fa-eye"></i> Lihat Detail
                                     </a>
-                                    <button class="btn btn-outline-info btn-sm btn-block" 
+                                    <button class="btn btn-outline-info btn-sm mb-2 btn-block" 
                                             onclick="printTransaction('{{ $penjualan->nota }}')">
                                         <i class="fas fa-print"></i> Print Struk
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm btn-block" 
+                                            onclick="confirmDeleteTransaction('{{ $penjualan->nota }}')"
+                                            title="Hapus transaksi ini (stok obat akan dikembalikan)">
+                                        <i class="fas fa-trash"></i> Hapus
                                     </button>
                                 </div>
                             </div>
@@ -497,6 +514,13 @@
                         <i class="fas fa-bolt text-warning"></i> Aksi Cepat
                     </h5>
                     
+                    <div class="alert alert-info mb-3" style="background: rgba(0,123,255,0.1); border: 1px solid rgba(0,123,255,0.3);">
+                        <small class="text-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Info:</strong> Saat menghapus transaksi, stok obat akan otomatis dikembalikan.
+                        </small>
+                    </div>
+                    
                     <a href="{{ route('penjualans.index') }}" class="btn btn-primary btn-block mb-3">
                         <i class="fas fa-plus"></i> Transaksi Baru
                     </a>
@@ -505,9 +529,23 @@
                         <i class="fas fa-download"></i> Export Data
                     </button>
                     
-                    <button class="btn btn-outline-info btn-block" onclick="refreshData()">
+                    <button class="btn btn-outline-info btn-block mb-3" onclick="refreshData()">
                         <i class="fas fa-sync"></i> Refresh Data
                     </button>
+                    
+                    <button class="btn btn-outline-danger btn-block" onclick="toggleBulkDelete()" id="bulk-delete-toggle"
+                            title="Aktifkan mode hapus multiple untuk menghapus beberapa transaksi sekaligus">
+                        <i class="fas fa-tasks"></i> Hapus Multiple
+                    </button>
+                    
+                    <div id="bulk-delete-controls" class="mt-3" style="display: none;">
+                        <button class="btn btn-danger btn-block mb-2" onclick="confirmBulkDelete()" id="bulk-delete-btn" disabled>
+                            <i class="fas fa-trash"></i> Hapus Terpilih (<span id="selected-count">0</span>)
+                        </button>
+                        <button class="btn btn-outline-secondary btn-block" onclick="cancelBulkDelete()">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -821,6 +859,232 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.alert('close');
     }, 3000);
+}
+
+// Delete transaction functions
+function confirmDeleteTransaction(nota) {
+    Swal.fire({
+        title: '⚠️ Konfirmasi Hapus',
+        html: `Apakah Anda yakin ingin menghapus transaksi <strong>${nota}</strong>?<br><br>
+               <small class="text-muted">Stok obat akan dikembalikan setelah penghapusan.</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-trash"></i> Ya, Hapus!',
+        cancelButtonText: '<i class="fas fa-times"></i> Batal',
+        background: '#2a2a2a',
+        color: '#fff',
+        customClass: {
+            popup: 'border border-secondary'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteTransaction(nota);
+        }
+    });
+}
+
+function deleteTransaction(nota) {
+    // Show loading
+    Swal.fire({
+        title: 'Menghapus Transaksi...',
+        text: 'Mohon tunggu, sedang memproses penghapusan.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        background: '#2a2a2a',
+        color: '#fff'
+    });
+
+    $.ajax({
+        url: `{{ route('penjualans.index') }}/${nota}`,
+        type: 'DELETE',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    title: '✅ Berhasil!',
+                    text: response.message,
+                    icon: 'success',
+                    background: '#2a2a2a',
+                    color: '#fff',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    // Remove the transaction card from view
+                    $(`.transaction-card[data-nota="${nota}"]`).fadeOut(300, function() {
+                        $(this).remove();
+                        updateResultsCounter();
+                    });
+                });
+            } else {
+                Swal.fire({
+                    title: '❌ Gagal!',
+                    text: response.message,
+                    icon: 'error',
+                    background: '#2a2a2a',
+                    color: '#fff',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Terjadi kesalahan saat menghapus transaksi.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            
+            Swal.fire({
+                title: '❌ Error!',
+                text: errorMessage,
+                icon: 'error',
+                background: '#2a2a2a',
+                color: '#fff',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    });
+}
+
+// Bulk delete functions
+function toggleBulkDelete() {
+    const isActive = $('#bulk-delete-controls').is(':visible');
+    
+    if (isActive) {
+        cancelBulkDelete();
+    } else {
+        // Show checkboxes
+        $('[id^="bulk-checkbox-"]').fadeIn(200);
+        $('#bulk-delete-controls').fadeIn(200);
+        $('#bulk-delete-toggle').html('<i class="fas fa-times"></i> Batal Mode Hapus');
+        
+        showNotification('📋 Mode hapus multiple diaktifkan. Pilih transaksi yang ingin dihapus.', 'info');
+    }
+}
+
+function cancelBulkDelete() {
+    // Hide checkboxes
+    $('[id^="bulk-checkbox-"]').fadeOut(200);
+    $('#bulk-delete-controls').fadeOut(200);
+    $('#bulk-delete-toggle').html('<i class="fas fa-tasks"></i> Hapus Multiple');
+    
+    // Uncheck all checkboxes
+    $('.transaction-checkbox').prop('checked', false);
+    updateBulkDeleteButton();
+}
+
+function updateBulkDeleteButton() {
+    const checkedCount = $('.transaction-checkbox:checked').length;
+    $('#selected-count').text(checkedCount);
+    $('#bulk-delete-btn').prop('disabled', checkedCount === 0);
+}
+
+function confirmBulkDelete() {
+    const selectedTransactions = $('.transaction-checkbox:checked').map(function() {
+        return $(this).val();
+    }).get();
+    
+    if (selectedTransactions.length === 0) {
+        showNotification('❗ Pilih minimal satu transaksi untuk dihapus.', 'warning');
+        return;
+    }
+    
+    Swal.fire({
+        title: '⚠️ Konfirmasi Hapus Multiple',
+        html: `Apakah Anda yakin ingin menghapus <strong>${selectedTransactions.length}</strong> transaksi yang dipilih?<br><br>
+               <small class="text-muted">Stok obat akan dikembalikan untuk semua transaksi yang dihapus.</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-trash"></i> Ya, Hapus Semua!',
+        cancelButtonText: '<i class="fas fa-times"></i> Batal',
+        background: '#2a2a2a',
+        color: '#fff',
+        customClass: {
+            popup: 'border border-secondary'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            bulkDeleteTransactions(selectedTransactions);
+        }
+    });
+}
+
+function bulkDeleteTransactions(notaList) {
+    // Show loading
+    Swal.fire({
+        title: 'Menghapus Transaksi...',
+        text: `Mohon tunggu, sedang menghapus ${notaList.length} transaksi.`,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        background: '#2a2a2a',
+        color: '#fff'
+    });
+
+    $.ajax({
+        url: '{{ route("penjualans.bulkDestroy") }}',
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            nota_list: notaList
+        },
+        success: function(response) {
+            if (response.success) {
+                Swal.fire({
+                    title: '✅ Berhasil!',
+                    text: response.message,
+                    icon: 'success',
+                    background: '#2a2a2a',
+                    color: '#fff',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    // Remove selected transaction cards from view
+                    notaList.forEach(nota => {
+                        $(`.transaction-card[data-nota="${nota}"]`).fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    });
+                    
+                    setTimeout(() => {
+                        updateResultsCounter();
+                        cancelBulkDelete();
+                    }, 400);
+                });
+            } else {
+                Swal.fire({
+                    title: '❌ Gagal!',
+                    text: response.message,
+                    icon: 'error',
+                    background: '#2a2a2a',
+                    color: '#fff',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Terjadi kesalahan saat menghapus transaksi.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            
+            Swal.fire({
+                title: '❌ Error!',
+                text: errorMessage,
+                icon: 'error',
+                background: '#2a2a2a',
+                color: '#fff',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    });
 }
 </script>
 @endpush
