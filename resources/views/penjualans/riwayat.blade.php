@@ -56,30 +56,6 @@
         transition: all 0.3s ease;
     }
     
-    .filter-section {
-        background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-        border: 2px solid #404040;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .search-box {
-        border-radius: 25px;
-        border: 2px solid #404040;
-        background: #3a3a3a;
-        color: #fff;
-        padding: 10px 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .search-box:focus {
-        border-color: #007bff;
-        background: #2a2a2a;
-        color: #fff;
-        box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
-    }
-    
     .top-medicine-item {
         background: linear-gradient(45deg, #28a745, #20c997);
         border-radius: 10px;
@@ -108,43 +84,6 @@
     .pagination .page-item.active .page-link {
         background-color: #007bff;
         border-color: #007bff;
-    }
-    
-    /* Enhanced search and filter styling */
-    .search-box:focus {
-        border-color: #007bff !important;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
-    }
-    
-    .input-group-text {
-        background: #404040 !important;
-        border-color: #404040 !important;
-    }
-    
-    .filter-section .btn-outline-primary:hover,
-    .filter-section .btn-outline-success:hover,
-    .filter-section .btn-outline-info:hover,
-    .filter-section .btn-outline-warning:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    }
-    
-    #results-counter {
-        animation: fadeIn 0.3s ease-in;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .clear-search {
-        transition: all 0.2s ease;
-    }
-    
-    .clear-search:hover {
-        color: #007bff !important;
-        transform: scale(1.1);
     }
 </style>
 @endpush
@@ -213,95 +152,6 @@
     <div class="row">
         {{-- Main Content: Transaction History --}}
         <div class="col-lg-8">
-            {{-- Filter Section --}}
-            <div class="filter-section card bg-dark border-secondary mb-4">
-                <div class="card-body">
-                    <h5 class="text-white mb-3">
-                        <i class="fas fa-search text-primary"></i> Filter & Pencarian
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-white-50 mb-1">
-                                <i class="fas fa-search"></i> Cari Transaksi
-                            </label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-secondary border-secondary">
-                                        <i class="fas fa-search text-white-50"></i>
-                                    </span>
-                                </div>
-                                <input type="text" id="search-transaction" class="form-control search-box" 
-                                       placeholder="Cari nomor nota, nama obat, atau kasir..."
-                                       style="background: #2a2a2a; border-color: #404040; color: white;">
-                            </div>
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle"></i> 
-                                Tips: Gunakan spasi untuk mencari beberapa kata sekaligus
-                            </small>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="text-white-50 mb-1">
-                                <i class="fas fa-calendar"></i> Bulan
-                            </label>
-                            <select id="filter-month" class="form-control search-box"
-                                    style="background: #2a2a2a; border-color: #404040; color: white;">
-                                <option value="">Semua Bulan</option>
-                                @for($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}" {{ date('n') == $i ? 'selected' : '' }}>
-                                        {{ \Carbon\Carbon::create()->month($i)->locale('id')->format('F') }}
-                                    </option>
-                                @endfor
-                            </select>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="text-white-50 mb-1">
-                                <i class="fas fa-calendar-alt"></i> Tahun
-                            </label>
-                            <select id="filter-year" class="form-control search-box"
-                                    style="background: #2a2a2a; border-color: #404040; color: white;">
-                                <option value="">Semua Tahun</option>
-                                @for($year = date('Y'); $year >= date('Y') - 5; $year--)
-                                    <option value="{{ $year }}" {{ date('Y') == $year ? 'selected' : '' }}>
-                                        {{ $year }}
-                                    </option>
-                                @endfor
-                            </select>
-                        </div>
-                    </div>
-                    
-                    {{-- Quick Filter Buttons --}}
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <label class="text-white-50 mb-2">
-                                <i class="fas fa-bolt"></i> Filter Cepat
-                            </label>
-                            <div class="btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="quickFilter('today')">
-                                    <i class="fas fa-calendar-day"></i> Hari Ini
-                                </button>
-                                <button type="button" class="btn btn-outline-success btn-sm" onclick="quickFilter('week')">
-                                    <i class="fas fa-calendar-week"></i> Minggu Ini
-                                </button>
-                                <button type="button" class="btn btn-outline-info btn-sm" onclick="quickFilter('month')">
-                                    <i class="fas fa-calendar"></i> Bulan Ini
-                                </button>
-                                <button type="button" class="btn btn-outline-warning btn-sm" onclick="clearAllFilters()">
-                                    <i class="fas fa-times"></i> Reset
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {{-- Search Tips --}}
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <i class="fas fa-keyboard"></i> 
-                            <strong>Shortcut:</strong> Ctrl+F untuk fokus pencarian, Escape untuk hapus pencarian
-                        </small>
-                    </div>
-                </div>
-            </div>
-
             {{-- Transaction List --}}
             <div id="transaction-list">
                 @forelse($riwayatPenjualan as $penjualan)
@@ -554,230 +404,8 @@
 @endsection
 
 @push('scripts')
+<script src="{{asset('vendors/js/vendor.bundle.base.js')}}"></script>
 <script>
-$(document).ready(function() {
-    let allTransactions = $('.transaction-card');
-    let filteredCount = 0;
-    
-    // Search functionality with debounce
-    let searchTimeout;
-    $('#search-transaction').on('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() {
-            filterTransactions();
-        }, 300);
-    });
-
-    // Filter functionality
-    $('#filter-month, #filter-year').on('change', function() {
-        filterTransactions();
-    });
-
-    function filterTransactions() {
-        const searchTerm = $('#search-transaction').val().toLowerCase().trim();
-        const selectedMonth = $('#filter-month').val();
-        const selectedYear = $('#filter-year').val();
-        
-        filteredCount = 0;
-
-        allTransactions.each(function() {
-            const $card = $(this);
-            const nota = $card.data('nota') ? $card.data('nota').toString().toLowerCase() : '';
-            const cardDate = $card.data('date');
-            
-            // Parse date correctly
-            let cardMonth = '';
-            let cardYear = '';
-            if (cardDate) {
-                const dateObj = new Date(cardDate);
-                cardMonth = (dateObj.getMonth() + 1).toString();
-                cardYear = dateObj.getFullYear().toString();
-            }
-            
-                         // Get specific searchable content
-             const medicineNames = $card.find('.medicine-name').map(function() { return $(this).text(); }).get().join(' ').toLowerCase();
-             const medicineCodes = $card.find('.medicine-code').map(function() { return $(this).text(); }).get().join(' ').toLowerCase();
-             const cashierName = $card.find('.cashier-name').text().toLowerCase();
-             const cardText = $card.text().toLowerCase();
-             
-             // Combine all searchable text
-             const allText = [nota, medicineNames, medicineCodes, cashierName, cardText].join(' ').replace(/\s+/g, ' ');
-            
-            let showCard = true;
-
-            // Search filter - search in nota, medicine names, and all card content
-            if (searchTerm) {
-                const searchWords = searchTerm.split(' ').filter(word => word.length > 0);
-                const matchesSearch = searchWords.every(word => 
-                    allText.includes(word) || 
-                    nota.includes(word) ||
-                    medicineNames.includes(word)
-                );
-                
-                if (!matchesSearch) {
-                    showCard = false;
-                }
-            }
-
-            // Month filter
-            if (selectedMonth && cardMonth && cardMonth !== selectedMonth) {
-                showCard = false;
-            }
-
-            // Year filter  
-            if (selectedYear && cardYear && cardYear !== selectedYear) {
-                showCard = false;
-            }
-
-            // Show/hide card with animation
-            if (showCard) {
-                $card.fadeIn(200);
-                filteredCount++;
-            } else {
-                $card.fadeOut(200);
-            }
-        });
-        
-        // Update results counter
-        updateResultsCounter();
-    }
-    
-    function updateResultsCounter() {
-        // Remove existing counter
-        $('#results-counter').remove();
-        
-        // Add results counter
-        const totalTransactions = allTransactions.length;
-        const counterHtml = `
-            <div id="results-counter" class="alert alert-info mb-3" style="background: rgba(0,123,255,0.1); border: 1px solid rgba(0,123,255,0.3); color: #17a2b8;">
-                <i class="fas fa-info-circle"></i> 
-                Menampilkan <strong>${filteredCount}</strong> dari <strong>${totalTransactions}</strong> transaksi
-                ${filteredCount === 0 ? '<br><small>Coba ubah kata kunci atau filter pencarian</small>' : ''}
-            </div>
-        `;
-        
-        $('#transaction-list').prepend(counterHtml);
-        
-        // Show/hide no results message
-        if (filteredCount === 0 && (
-            $('#search-transaction').val().trim() || 
-            $('#filter-month').val() || 
-            $('#filter-year').val()
-        )) {
-            showNoResultsMessage();
-        } else {
-            $('#no-results-message').remove();
-        }
-    }
-    
-    function showNoResultsMessage() {
-        $('#no-results-message').remove();
-        
-        const noResultsHtml = `
-            <div id="no-results-message" class="text-center py-5">
-                <div class="card bg-dark border-secondary">
-                    <div class="card-body">
-                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                        <h5 class="text-white">Tidak ada transaksi yang ditemukan</h5>
-                        <p class="text-muted">Coba gunakan kata kunci yang berbeda atau ubah filter pencarian</p>
-                        <button class="btn btn-outline-primary" onclick="clearAllFilters()">
-                            <i class="fas fa-times"></i> Hapus Semua Filter
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        $('#transaction-list').append(noResultsHtml);
-    }
-    
-         // Add clear filters functionality
-     window.clearAllFilters = function() {
-         $('#search-transaction').val('');
-         $('#filter-month').val('');
-         $('#filter-year').val('');
-         filterTransactions();
-         showNotification('🔄 Filter berhasil dihapus', 'success');
-     };
-     
-     // Add quick filter functionality
-     window.quickFilter = function(period) {
-         const today = new Date();
-         let startDate, endDate;
-         
-         // Clear existing filters first
-         $('#search-transaction').val('');
-         $('#filter-month').val('');
-         $('#filter-year').val('');
-         
-         switch(period) {
-             case 'today':
-                 $('#filter-month').val(today.getMonth() + 1);
-                 $('#filter-year').val(today.getFullYear());
-                 showNotification('📅 Menampilkan transaksi hari ini', 'info');
-                 break;
-                 
-             case 'week':
-                 // For week, we'll just use current month as approximation
-                 $('#filter-month').val(today.getMonth() + 1);
-                 $('#filter-year').val(today.getFullYear());
-                 showNotification('📅 Menampilkan transaksi minggu ini', 'info');
-                 break;
-                 
-             case 'month':
-                 $('#filter-month').val(today.getMonth() + 1);
-                 $('#filter-year').val(today.getFullYear());
-                 showNotification('📅 Menampilkan transaksi bulan ini', 'info');
-                 break;
-         }
-         
-         filterTransactions();
-     };
-    
-    // Add clear search button
-    const searchContainer = $('#search-transaction').parent();
-    if (!searchContainer.find('.clear-search').length) {
-        searchContainer.css('position', 'relative');
-        searchContainer.append(`
-            <button type="button" class="btn btn-link clear-search" 
-                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10; color: #666; padding: 0; border: none; background: none;">
-                <i class="fas fa-times"></i>
-            </button>
-        `);
-        
-        $('.clear-search').on('click', function() {
-            $('#search-transaction').val('');
-            filterTransactions();
-        });
-        
-                 // Show/hide clear button
-         $('#search-transaction').on('input', function() {
-             $('.clear-search').toggle($(this).val().length > 0);
-         });
-         
-         // Initial clear button state
-         $('.clear-search').toggle($('#search-transaction').val().length > 0);
-    }
-    
-    // Initialize counter
-    updateResultsCounter();
-    
-    // Add keyboard shortcuts
-    $(document).on('keydown', function(e) {
-        // Ctrl/Cmd + F to focus search
-        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-            e.preventDefault();
-            $('#search-transaction').focus();
-        }
-        
-        // Escape to clear search
-        if (e.key === 'Escape' && $('#search-transaction').is(':focus')) {
-            $('#search-transaction').val('');
-            filterTransactions();
-        }
-    });
-});
-
 // Print transaction function
 function printTransaction(nota) {
     window.open(`{{ route('penjualans.show', '') }}/${nota}?print=1`, '_blank');
@@ -900,7 +528,7 @@ function deleteTransaction(nota) {
     });
 
     $.ajax({
-        url: `{{ route('penjualans.index') }}/${nota}`,
+        url: `{{ route('penjualans.destroy', ':nota') }}`.replace(':nota', nota),
         type: 'DELETE',
         data: {
             _token: '{{ csrf_token() }}'
@@ -915,11 +543,8 @@ function deleteTransaction(nota) {
                     color: '#fff',
                     confirmButtonColor: '#28a745'
                 }).then(() => {
-                    // Remove the transaction card from view
-                    $(`.transaction-card[data-nota="${nota}"]`).fadeOut(300, function() {
-                        $(this).remove();
-                        updateResultsCounter();
-                    });
+                    // Remove the transaction card from view or reload page
+                    location.reload();
                 });
             } else {
                 Swal.fire({
@@ -1046,17 +671,8 @@ function bulkDeleteTransactions(notaList) {
                     color: '#fff',
                     confirmButtonColor: '#28a745'
                 }).then(() => {
-                    // Remove selected transaction cards from view
-                    notaList.forEach(nota => {
-                        $(`.transaction-card[data-nota="${nota}"]`).fadeOut(300, function() {
-                            $(this).remove();
-                        });
-                    });
-                    
-                    setTimeout(() => {
-                        updateResultsCounter();
-                        cancelBulkDelete();
-                    }, 400);
+                    // Reload page to show updated data
+                    location.reload();
                 });
             } else {
                 Swal.fire({
