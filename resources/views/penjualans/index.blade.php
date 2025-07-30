@@ -826,16 +826,14 @@ window.addEventListener('load', function () {
             }
             
             const totalAmount = cartItems.reduce((total, item) => total + (item.harga * item.jumlah), 0);
-            const confirmed = confirm(`💳 Konfirmasi transaksi dengan total: ${formatRupiah(totalAmount)}?`);
             
-            if (!confirmed) {
-                e.preventDefault();
-                return false;
-            }
+            // Prevent default form submission
+            e.preventDefault();
             
-            // Show loading state
-            $('#process-transaction').prop('disabled', true).html('⏳ Memproses...');
-            showNotification('💳 Memproses transaksi...', 'info');
+            // Show transaction confirmation modal
+            showTransactionModal(this, cartItems, totalAmount);
+            
+            return false;
         });
     });
 });
