@@ -83,6 +83,11 @@
                         <label for="stok">Stok Awal (Jumlah Beli)</label>
                         <input type="number" class="form-control" id="stok" name="stok" placeholder="100" value="{{ old('stok') }}" required min="1">
                     </div>
+                     <div class="form-group">
+                        <label for="tanggal_kadaluarsa">Tanggal Kadaluarsa <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="tanggal_kadaluarsa" name="tanggal_kadaluarsa" value="{{ old('tanggal_kadaluarsa') }}" required min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                        <small class="form-text text-muted">Tanggal kadaluarsa tidak boleh hari ini atau sudah lewat</small>
+                    </div>
                     
                     <button type="submit" class="btn btn-primary mr-2">Simpan</button>
                     <a href="{{ route('obats.index') }}" class="btn btn-dark">Batal</a>

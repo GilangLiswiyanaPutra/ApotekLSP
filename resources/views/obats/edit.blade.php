@@ -67,6 +67,12 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="tanggal_kadaluarsa">Tanggal Kadaluarsa <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="tanggal_kadaluarsa" name="tanggal_kadaluarsa" value="{{ old('tanggal_kadaluarsa', $obat->tanggal_kadaluarsa ? $obat->tanggal_kadaluarsa->format('Y-m-d') : '') }}" required>
+                        <small class="form-text text-muted">Tanggal kadaluarsa obat</small>
+                    </div>
+                    
+                    <div class="form-group">
                         <label>Gambar Saat Ini</label><br>
                         @if($obat->gambar)
                             <img src="{{ asset('storage/' . $obat->gambar) }}" alt="{{ $obat->nama }}" width="150" class="rounded">
