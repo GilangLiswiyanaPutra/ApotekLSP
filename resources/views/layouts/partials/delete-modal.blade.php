@@ -44,28 +44,56 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteForm = form;
         
         // Set custom message if provided
-        if (message) {
-            document.getElementById('deleteMessage').textContent = message;
-        } else {
-            document.getElementById('deleteMessage').textContent = 'Apakah Anda yakin ingin menghapus data ini?';
+        const messageElement = document.getElementById('deleteMessage');
+        if (messageElement) {
+            if (message) {
+                messageElement.textContent = message;
+            } else {
+                messageElement.textContent = 'Apakah Anda yakin ingin menghapus data ini?';
+            }
         }
         
         // Show modal
-        $('#deleteModal').modal('show');
+        if (typeof $ !== 'undefined' && $('#deleteModal').length) {
+            $('#deleteModal').modal('show');
+        } else {
+            console.error('Bootstrap modal or jQuery not available');
+        }
     };
     
     // Handle confirm delete button click
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-        if (deleteForm) {
-            deleteForm.submit();
-        }
-        $('#deleteModal').modal('hide');
-    });
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            if (deleteForm) {
+                // Show loading state
+                this.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Menghapus...';
+                this.disabled = true;
+                
+                deleteForm.submit();
+            }
+            if (typeof $ !== 'undefined') {
+                $('#deleteModal').modal('hide');
+            }
+        });
+    }
     
     // Reset form when modal is hidden
-    $('#deleteModal').on('hidden.bs.modal', function() {
-        deleteForm = null;
-        document.getElementById('deleteMessage').textContent = 'Apakah Anda yakin ingin menghapus data ini?';
-    });
+    if (typeof $ !== 'undefined') {
+        $('#deleteModal').on('hidden.bs.modal', function() {
+            deleteForm = null;
+            const messageElement = document.getElementById('deleteMessage');
+            if (messageElement) {
+                messageElement.textContent = 'Apakah Anda yakin ingin menghapus data ini?';
+            }
+            
+            // Reset confirm button
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmBtn) {
+                confirmBtn.innerHTML = '<i class="mdi mdi-delete"></i> Ya, Hapus';
+                confirmBtn.disabled = false;
+            }
+        });
+    }
 });
 </script>
