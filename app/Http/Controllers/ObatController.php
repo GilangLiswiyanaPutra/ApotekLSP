@@ -59,7 +59,7 @@ class ObatController extends Controller
             'stok' => 'required|integer|min:1',
             'supplier_id' => 'required|exists:suppliers,id',
             'tanggal_nota' => 'required|date',
-            'tanggal_kadaluarsa' => 'required|date|after:today',
+            'tgl_kadaluarsa' => 'required|date|after:today',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -135,7 +135,7 @@ class ObatController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
             'supplier' => 'required|string|max:255',
-            'tanggal_kadaluarsa' => 'required|date',
+            'tgl_kadaluarsa' => 'required|date',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
