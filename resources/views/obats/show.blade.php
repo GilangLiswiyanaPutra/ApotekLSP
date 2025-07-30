@@ -43,6 +43,27 @@
                                 <th>Supplier</th>
                                 <td>{{ $obat->supplier }}</td>
                             </tr>
+                            <tr>
+                                <th>Tanggal Kadaluarsa</th>
+                                <td>
+                                    @if($obat->tanggal_kadaluarsa)
+                                        @php $expirationStatus = $obat->getExpirationStatus(); @endphp
+                                        {{ $obat->tanggal_kadaluarsa->format('d F Y') }}
+                                        <span class="badge {{ $expirationStatus['class'] }} ml-2">{{ $expirationStatus['status'] }}</span>
+                                        @if($obat->getDaysUntilExpiration() !== null)
+                                            <br><small class="text-muted">
+                                                @if($obat->isExpired())
+                                                    Telah kadaluarsa {{ abs($obat->getDaysUntilExpiration()) }} hari yang lalu
+                                                @else
+                                                    {{ $obat->getDaysUntilExpiration() }} hari lagi
+                                                @endif
+                                            </small>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">Tidak ada data</span>
+                                    @endif
+                                </td>
+                            </tr>
                              <tr>
                                 <th>Ditambahkan Pada</th>
                                 <td>{{ $obat->created_at->format('d F Y') }}</td>

@@ -12,11 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('detail_pembelians', function (Blueprint $table) {
-        $table->id();
-        $table->string('kode_obat')->unique();
-        $table->string('nomor_nota')->unique();
-        $table->integer('jumlah');
-    });
+            $table->id();
+            $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
+            $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
+            $table->string('kode_obat');
+            $table->integer('jumlah');
+            $table->decimal('harga_beli', 15, 2);
+            $table->decimal('subtotal', 15, 2);
+            $table->timestamps();
+        });
     }
 
     /**

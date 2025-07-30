@@ -62,17 +62,52 @@
                                 <th>Jenis</th>
                                 <th>Stok</th>
                                 <th>Harga Jual</th>
+                                <th>Tanggal Kadaluarsa</th>
+                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($obats as $obat)
-                                <tr class="clickable-row" data-href="{{ route('obats.show', $obat->id) }}">
+                                @php
+                                    $expirationStatus = $obat->getExpirationStatus();
+                                    $rowClass = '';
+                                    if ($obat->isExpired()) {
+                                        $rowClass = 'table-danger';
+                                    } elseif ($obat->isNearExpiration()) {
+                                        $rowClass = 'table-warning';
+                                    }
+                                @endphp
+                                <tr class="clickable-row {{ $rowClass }}" data-href="{{ route('obats.show', $obat->id) }}">
                                     <td><span class="badge badge-dark">{{ $obat->kode_obat }}</span></td>
-                                    <td>{{ $obat->nama }}</td>
+                                    <td>
+                                        {{ $obat->nama }}
+                                        @if($obat->isExpired() || $obat->isNearExpiration())
+                                            <i class="mdi mdi-alert-circle text-{{ $obat->isExpired() ? 'danger' : 'warning' }}" title="{{ $expirationStatus['status'] }}"></i>
+                                        @endif
+                                    </td>
                                     <td><label class="badge badge-gradient-success">{{ $obat->jenis }}</label></td>
                                     <td>{{ $obat->stok }} {{ $obat->satuan }}</td>
                                     <td>Rp {{ number_format($obat->harga_jual, 0, ',', '.') }}</td>
+                                    <td>
+                                        @if($obat->tanggal_kadaluarsa)
+                                            {{ $obat->tanggal_kadaluarsa->format('d/m/Y') }}
+                                            @if($obat->getDaysUntilExpiration() !== null)
+                                                <br><small class="text-muted">
+                                                    @if($obat->isExpired())
+                                                        Telah kadaluarsa {{ abs($obat->getDaysUntilExpiration()) }} hari
+                                                    @else
+                                                        {{ $obat->getDaysUntilExpiration() }} hari lagi
+                                                    @endif
+                                                </small>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ $expirationStatus['class'] }}">{{ $expirationStatus['status'] }}</span>
+                                    </td>
                                     {{-- [FIX] Mengembalikan Tombol Aksi yang Hilang --}}
                                     <td>
                                         <a href="{{ route('obats.edit', $obat->id) }}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
@@ -85,8 +120,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    {{-- Sesuaikan colspan dengan jumlah kolom yang benar (6) --}}
-                                    <td colspan="6" class="text-center">Data obat tidak ditemukan.</td>
+                                    {{-- Sesuaikan colspan dengan jumlah kolom yang benar (8) --}}
+                                    <td colspan="8" class="text-center">Data obat tidak ditemukan.</td>
                                 </tr>
                             @endforelse
                         </tbody>

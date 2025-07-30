@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::create('detail_pembelians', function (Blueprint $table) {
-        $table->id();
-        // Pastikan baris ini ada dan benar
-        $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
-        $table->foreignId('obat_id')->constrained('obats');
-        $table->integer('jumlah');
-        $table->decimal('harga_beli', 15, 2);
-        $table->decimal('subtotal', 15, 2);
-        // Kolom timestamps tidak diperlukan di sini sesuai model Anda
-    });
+        Schema::create('pembelians', function (Blueprint $table) {
+            $table->id();
+            $table->string('nomor_nota')->unique();
+            $table->date('tanggal_nota');
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            $table->string('kode_obat');
+            $table->decimal('subtotal', 15, 2);
+            $table->decimal('total_bayar', 15, 2);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('pembelians');
     }
 };
