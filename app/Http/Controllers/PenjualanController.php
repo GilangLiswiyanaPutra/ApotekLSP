@@ -135,6 +135,105 @@ class PenjualanController extends Controller
         return view('penjualans.riwayat', compact('riwayatPenjualan', 'totalTransaksi', 'totalObatTerjual', 'obatTerlaris'));
     }
 
-    // Method lain dari resource (create, edit, update, destroy) bisa Anda implementasikan nanti
+    /**
+     * Menghapus transaksi penjualan dan mengembalikan stok obat
+     * Route: DELETE /penjualans/{nota} (penjualans.destroy)
+     * 
+     * Fitur Delete Riwayat Penjualan:
+     * 1. Menghapus transaksi individual dengan tombol "Hapus" di setiap kartu transaksi
+     * 2. Menghapus multiple transaksi sekaligus dengan mode "Hapus Multiple"
+     * 3. Otomatis mengembalikan stok obat yang terjual saat transaksi dihapus
+     * 4. Konfirmasi dengan SweetAlert2 sebelum penghapusan
+     * 5. Menampilkan notifikasi sukses/error setelah operasi
+     * 6. Menghapus data dari tabel 'penjualans' dan 'detail_penjualans'
+     * 7. Transaksi database untuk memastikan konsistensi data
+     */
+    public function destroy($nota)
+    {
+        try {
+            DB::transaction(function () use ($nota) {
+                // Cari penjualan dengan detailnya
+                $penjualan = Penjualan::with('details.obat')->findOrFail($nota);
+                
+                // Kembalikan stok untuk setiap obat yang terjual
+                foreach ($penjualan->details as $detail) {
+                    if ($detail->obat) {
+                        // Kembalikan stok obat
+                        $detail->obat->increment('stok', $detail->jumlah);
+                    }
+                }
+                
+                // Hapus detail penjualan terlebih dahulu
+                DetailPenjualan::where('nota', $nota)->delete();
+                
+                // Hapus data penjualan
+                $penjualan->delete();
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi berhasil dihapus dan stok obat telah dikembalikan!'
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Menghapus multiple transaksi penjualan sekaligus
+     * Route: POST /penjualans/bulk-delete (penjualans.bulkDestroy)
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'nota_list' => 'required|array|min:1',
+            'nota_list.*' => 'required|string|exists:penjualans,nota',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request) {
+                $deletedCount = 0;
+                
+                foreach ($request->nota_list as $nota) {
+                    // Cari penjualan dengan detailnya
+                    $penjualan = Penjualan::with('details.obat')->find($nota);
+                    
+                    if ($penjualan) {
+                        // Kembalikan stok untuk setiap obat yang terjual
+                        foreach ($penjualan->details as $detail) {
+                            if ($detail->obat) {
+                                // Kembalikan stok obat
+                                $detail->obat->increment('stok', $detail->jumlah);
+                            }
+                        }
+                        
+                        // Hapus detail penjualan terlebih dahulu
+                        DetailPenjualan::where('nota', $nota)->delete();
+                        
+                        // Hapus data penjualan
+                        $penjualan->delete();
+                        $deletedCount++;
+                    }
+                }
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$deletedCount} transaksi dan mengembalikan stok obat!"
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Method lain dari resource (create, edit, update) bisa Anda implementasikan nanti
     // jika ingin ada fitur manajemen riwayat penjualan.
 }
