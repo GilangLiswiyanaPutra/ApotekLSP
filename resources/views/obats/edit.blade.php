@@ -67,8 +67,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="tanggal_kadaluarsa">Tanggal Kadaluarsa <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control" id="tanggal_kadaluarsa" name="tanggal_kadaluarsa" value="{{ old('tanggal_kadaluarsa', $obat->tanggal_kadaluarsa ? $obat->tanggal_kadaluarsa->format('Y-m-d') : '') }}" required>
+                        <label for="tgl_kadaluarsa">Tanggal Kadaluarsa <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="tgl_kadaluarsa" name="tgl_kadaluarsa" value="{{ old('tgl_kadaluarsa', $obat->tgl_kadaluarsa ? $obat->tgl_kadaluarsa->format('Y-m-d') : '') }}" required>
                         <small class="form-text text-muted">Tanggal kadaluarsa obat</small>
                     </div>
                     

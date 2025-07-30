@@ -63,7 +63,6 @@
                                 <th>Stok</th>
                                 <th>Harga Jual</th>
                                 <th>Tanggal Kadaluarsa</th>
-                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -73,7 +72,7 @@
                                     $expirationStatus = $obat->getExpirationStatus();
                                     $rowClass = '';
                                     if ($obat->isExpired()) {
-                                        $rowClass = 'table-danger';
+                                        $rowClass = 'table-danger'; // Red background for expired drugs
                                     } elseif ($obat->isNearExpiration()) {
                                         $rowClass = 'table-warning';
                                     }
@@ -90,8 +89,8 @@
                                     <td>{{ $obat->stok }} {{ $obat->satuan }}</td>
                                     <td>Rp {{ number_format($obat->harga_jual, 0, ',', '.') }}</td>
                                     <td>
-                                        @if($obat->tanggal_kadaluarsa)
-                                            {{ $obat->tanggal_kadaluarsa->format('d/m/Y') }}
+                                        @if($obat->tgl_kadaluarsa)
+                                            {{ $obat->tgl_kadaluarsa->format('d/m/Y') }}
                                             @if($obat->getDaysUntilExpiration() !== null)
                                                 <br><small class="text-muted">
                                                     @if($obat->isExpired())
@@ -105,9 +104,6 @@
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <span class="badge {{ $expirationStatus['class'] }}">{{ $expirationStatus['status'] }}</span>
-                                    </td>
                                     {{-- [FIX] Mengembalikan Tombol Aksi yang Hilang --}}
                                     <td>
                                         <a href="{{ route('obats.edit', $obat->id) }}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
@@ -120,8 +116,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    {{-- Sesuaikan colspan dengan jumlah kolom yang benar (8) --}}
-                                    <td colspan="8" class="text-center">Data obat tidak ditemukan.</td>
+                                    {{-- Sesuaikan colspan dengan jumlah kolom yang benar (7) --}}
+                                    <td colspan="7" class="text-center">Data obat tidak ditemukan.</td>
                                 </tr>
                             @endforelse
                         </tbody>

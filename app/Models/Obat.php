@@ -22,11 +22,11 @@ class Obat extends Model
         'stok', 
         'supplier', 
         'gambar',
-        'tanggal_kadaluarsa'
+        'tgl_kadaluarsa'
     ];
 
     protected $casts = [
-        'tanggal_kadaluarsa' => 'date',
+        'tgl_kadaluarsa' => 'date',
     ];
 
     /**
@@ -34,11 +34,11 @@ class Obat extends Model
      */
     public function isNearExpiration()
     {
-        if (!$this->tanggal_kadaluarsa) {
+        if (!$this->tgl_kadaluarsa) {
             return false;
         }
         
-        $daysDiff = Carbon::now()->diffInDays($this->tanggal_kadaluarsa, false);
+        $daysDiff = Carbon::now()->diffInDays($this->tgl_kadaluarsa, false);
         return $daysDiff <= 30 && $daysDiff >= 0;
     }
 
@@ -47,11 +47,11 @@ class Obat extends Model
      */
     public function isExpired()
     {
-        if (!$this->tanggal_kadaluarsa) {
+        if (!$this->tgl_kadaluarsa) {
             return false;
         }
         
-        return Carbon::now()->isAfter($this->tanggal_kadaluarsa);
+        return Carbon::now()->isAfter($this->tgl_kadaluarsa);
     }
 
     /**
@@ -59,7 +59,7 @@ class Obat extends Model
      */
     public function getExpirationStatus()
     {
-        if (!$this->tanggal_kadaluarsa) {
+        if (!$this->tgl_kadaluarsa) {
             return ['status' => 'Tidak ada data', 'class' => 'badge-secondary'];
         }
 
@@ -79,10 +79,10 @@ class Obat extends Model
      */
     public function getDaysUntilExpiration()
     {
-        if (!$this->tanggal_kadaluarsa) {
+        if (!$this->tgl_kadaluarsa) {
             return null;
         }
         
-        return Carbon::now()->diffInDays($this->tanggal_kadaluarsa, false);
+        return Carbon::now()->diffInDays($this->tgl_kadaluarsa, false);
     }
 }

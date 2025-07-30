@@ -46,10 +46,10 @@
                             <tr>
                                 <th>Tanggal Kadaluarsa</th>
                                 <td>
-                                    @if($obat->tanggal_kadaluarsa)
-                                        @php $expirationStatus = $obat->getExpirationStatus(); @endphp
-                                        {{ $obat->tanggal_kadaluarsa->format('d F Y') }}
-                                        <span class="badge {{ $expirationStatus['class'] }} ml-2">{{ $expirationStatus['status'] }}</span>
+                                    @if($obat->tgl_kadaluarsa)
+                                        <span class="{{ $obat->isExpired() ? 'text-danger font-weight-bold' : '' }}">
+                                            {{ $obat->tgl_kadaluarsa->format('d F Y') }}
+                                        </span>
                                         @if($obat->getDaysUntilExpiration() !== null)
                                             <br><small class="text-muted">
                                                 @if($obat->isExpired())
