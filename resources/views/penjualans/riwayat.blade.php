@@ -51,10 +51,7 @@
         transform: translateX(5px);
     }
     
-    .medicine-image img:hover {
-        transform: scale(1.1);
-        transition: all 0.3s ease;
-    }
+
     
     .top-medicine-item {
         background: linear-gradient(45deg, #28a745, #20c997);
@@ -202,27 +199,13 @@
                                             @foreach($penjualan->details as $detail)
                                                 @if($detail->obat)
                                                     <div class="medicine-item d-flex align-items-center">
-                                                        <div class="medicine-image me-3" style="width: 50px; height: 50px; min-width: 50px;">
-                                                            @if($detail->obat->gambar && file_exists(public_path('storage/' . $detail->obat->gambar)))
-                                                                <img src="{{ asset('storage/' . $detail->obat->gambar) }}" 
-                                                                     alt="{{ $detail->obat->nama }}" 
-                                                                     class="img-fluid rounded"
-                                                                     style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;"
-                                                                     onclick="showMedicineImage('{{ asset('storage/' . $detail->obat->gambar) }}', '{{ $detail->obat->nama }}')">
-                                                            @else
-                                                                <div class="d-flex align-items-center justify-content-center bg-secondary rounded" 
-                                                                     style="width: 50px; height: 50px;">
-                                                                    <i class="fas fa-pills text-white"></i>
-                                                                </div>
-                                                            @endif
-                                                        </div>
                                                         <div class="flex-grow-1">
                                                             <strong class="medicine-name">{{ $detail->obat->nama }}</strong>
                                                             <br>
                                                             <small class="text-muted medicine-details">
                                                                 <span class="medicine-code">Kode: {{ $detail->kode_obat }}</span> | 
                                                                 <span class="medicine-quantity">Qty: {{ $detail->jumlah }} pcs</span> | 
-                                                                <span class="medicine-price">@{{ number_format($detail->obat->harga_jual, 0, ',', '.') }}</span>
+                                                                <span class="medicine-price">Rp {{ number_format($detail->obat->harga_jual, 0, ',', '.') }}</span>
                                                             </small>
                                                             <br>
                                                             <small class="text-success medicine-subtotal">
@@ -232,14 +215,10 @@
                                                     </div>
                                                 @else
                                                     <div class="medicine-item border-warning d-flex align-items-center">
-                                                        <div class="medicine-image me-3" style="width: 50px; height: 50px; min-width: 50px;">
-                                                            <div class="d-flex align-items-center justify-content-center bg-warning rounded" 
-                                                                 style="width: 50px; height: 50px;">
-                                                                <i class="fas fa-exclamation-triangle text-dark"></i>
-                                                            </div>
-                                                        </div>
                                                         <div class="flex-grow-1">
-                                                            <strong class="text-warning">Obat Tidak Ditemukan</strong>
+                                                            <strong class="text-warning">
+                                                                <i class="fas fa-exclamation-triangle"></i> Obat Tidak Ditemukan
+                                                            </strong>
                                                             <br>
                                                             <small class="text-muted">
                                                                 Kode: {{ $detail->kode_obat }} | Qty: {{ $detail->jumlah }} pcs
@@ -421,47 +400,7 @@ function refreshData() {
     location.reload();
 }
 
-// Show medicine image in modal
-function showMedicineImage(imageUrl, medicineName) {
-    // Create image modal
-    const modal = $(`
-        <div class="modal fade" id="medicineImageModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header border-secondary">
-                        <h5 class="modal-title text-white">
-                            <i class="fas fa-pills"></i> ${medicineName}
-                        </h5>
-                        <button type="button" class="close text-white" data-dismiss="modal">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body text-center p-0">
-                        <img src="${imageUrl}" alt="${medicineName}" 
-                             class="img-fluid" style="max-height: 500px; object-fit: contain; width: 100%;">
-                    </div>
-                    <div class="modal-footer border-secondary">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            <i class="fas fa-times"></i> Tutup
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `);
-    
-    // Remove existing modal if any
-    $('#medicineImageModal').remove();
-    
-    // Add modal to body and show
-    $('body').append(modal);
-    $('#medicineImageModal').modal('show');
-    
-    // Remove modal when hidden
-    $('#medicineImageModal').on('hidden.bs.modal', function() {
-        $(this).remove();
-    });
-}
+
 
 // Show notification
 function showNotification(message, type = 'info') {
