@@ -43,10 +43,14 @@
                                     <td>{{ $apoteker->telepon }}</td>
                                     <td>
                                         <a href="{{ route('apotekers.edit', $apoteker->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                        <form action="{{ route('apotekers.destroy', $apoteker->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus?');">
+                                        <form action="{{ route('apotekers.destroy', $apoteker->id) }}" method="POST" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    data-nama="{{ $apoteker->name }}"
+                                                    data-message="Yakin hapus apoteker '{{ $apoteker->name }}'? Data akan dihapus permanen.">
+                                                Hapus
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -62,3 +66,19 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle delete buttons with modal
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const message = this.getAttribute('data-message');
+                showDeleteModal(form, message);
+            });
+        });
+    });
+</script>
+@endpush

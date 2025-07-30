@@ -76,10 +76,14 @@
                                     <td>{{ $pembelian->supplier->nama }}</td>
                                     <td>
                                         <a href="{{ route('pembelians.show', $pembelian->id) }}" class="btn btn-sm btn-info"><i class="mdi mdi-eye"></i> Detail</a>
-                                        <form action="{{ route('pembelians.destroy', $pembelian->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data ini? Stok obat akan dikembalikan.');">
+                                        <form action="{{ route('pembelians.destroy', $pembelian->id) }}" method="POST" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i> Hapus</button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    data-nama="{{ $pembelian->nomor_nota }}"
+                                                    data-message="Yakin hapus pembelian '{{ $pembelian->nomor_nota }}'? Stok obat akan dikembalikan dan data dihapus permanen.">
+                                                <i class="mdi mdi-delete"></i> Hapus
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -195,6 +199,16 @@
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
         }
+        
+        // Handle delete buttons with modal
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const message = this.getAttribute('data-message');
+                showDeleteModal(form, message);
+            });
+        });
     });
 </script>
 @endpush

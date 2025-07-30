@@ -229,6 +229,10 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="card-title text-white mb-0">🔍 Pilih Obat</h4>
                         <div class="d-flex align-items-center">
+                            <button type="button" id="toggle-modal-mode" class="btn btn-outline-warning btn-sm me-2" 
+                                    title="Toggle Modal Konfirmasi - ON: Tampilkan konfirmasi sebelum menambah ke keranjang, OFF: Langsung tambah ke keranjang">
+                                <i class="mdi mdi-checkbox-marked-circle"></i> Modal: <span id="modal-status">ON</span>
+                            </button>
                             <a href="{{ route('penjualans.riwayat') }}" class="btn btn-outline-info btn-sm me-3">
                                 <i class="fas fa-history"></i> Riwayat Penjualan
                             </a>
@@ -493,6 +497,50 @@
 window.addEventListener('load', function () {
     $(document).ready(function() {
         let cartItems = [];
+        let modalMode = true; // Enable modal mode by default
+
+        // Toggle modal mode
+        $('#toggle-modal-mode').click(function() {
+            modalMode = !modalMode;
+            updateModalToggle();
+        });
+        
+        function updateModalToggle() {
+            const button = $('#toggle-modal-mode');
+            const status = $('#modal-status');
+            
+            if (modalMode) {
+                button.removeClass('btn-outline-success').addClass('btn-outline-warning');
+                button.find('i').removeClass('mdi-checkbox-blank-circle-outline').addClass('mdi-checkbox-marked-circle');
+                status.text('ON');
+            } else {
+                button.removeClass('btn-outline-warning').addClass('btn-outline-success');
+                button.find('i').removeClass('mdi-checkbox-marked-circle').addClass('mdi-checkbox-blank-circle-outline');
+                status.text('OFF');
+            }
+        }
+        
+        // Function to add item to cart from modal
+        window.addToCartFromModal = function(medicineData, quantity) {
+            const existingItem = cartItems.find(item => item.id === medicineData.id);
+            
+            if (existingItem) {
+                const newQuantity = existingItem.jumlah + quantity;
+                if (newQuantity <= medicineData.stok) {
+                    existingItem.jumlah = newQuantity;
+                    showNotification(`✅ ${medicineData.nama} ditambahkan ke keranjang (${existingItem.jumlah} pcs)`, 'success');
+                } else {
+                    showNotification(`⚠️ Stok ${medicineData.nama} tidak mencukupi! (Max: ${medicineData.stok} pcs)`, 'warning');
+                    return;
+                }
+            } else {
+                medicineData.jumlah = quantity;
+                cartItems.push(medicineData);
+                showNotification(`✅ ${medicineData.nama} ditambahkan ke keranjang (${quantity} pcs)`, 'success');
+            }
+            
+            renderCart();
+        };
 
         // Search functionality
         $('#search-obat').on('input', function() {
@@ -534,6 +582,24 @@ window.addEventListener('load', function () {
                 stok: parseInt($card.data('stok')),
             };
 
+            // Remove loading state immediately for modal mode
+            $card.removeClass('loading');
+            
+            // Check if modal mode is enabled
+            if (modalMode) {
+                // Show order modal
+                const medicineData = {
+                    ...itemData,
+                    jenis: $card.closest('.product-item').data('type') || '',
+                    gambar: $card.find('img').length > 0 ? $card.find('img').attr('src') : ''
+                };
+                showOrderModal(medicineData);
+                return;
+            }
+
+            // Direct add mode (original behavior)
+            $card.addClass('loading');
+            
             // Simulate brief loading for better UX
             setTimeout(() => {
                 if (itemData.stok <= 0) {
