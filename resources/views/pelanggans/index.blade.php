@@ -49,10 +49,14 @@
                                     <td>{{ $pelanggan->telepon }}</td>
                                     <td>
                                         <a href="{{ route('pelanggans.edit', $pelanggan->id) }}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
-                                        <form action="{{ route('pelanggans.destroy', $pelanggan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus?');">
+                                        <form action="{{ route('pelanggans.destroy', $pelanggan->id) }}" method="POST" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    data-nama="{{ $pelanggan->user->name }}"
+                                                    data-message="Yakin hapus pelanggan '{{ $pelanggan->user->name }}'? Data akan dihapus permanen.">
+                                                <i class="mdi mdi-delete"></i>
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -68,3 +72,19 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle delete buttons with modal
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const message = this.getAttribute('data-message');
+                showDeleteModal(form, message);
+            });
+        });
+    });
+</script>
+@endpush

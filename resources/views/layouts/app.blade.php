@@ -27,6 +27,11 @@
             </div>
         </div>
     </div>
+    
+    {{-- Include reusable modals --}}
+    @include('layouts.partials.delete-modal')
+    @include('layouts.partials.order-modal')
+    
     @stack('scripts')
 </body>
 </html>

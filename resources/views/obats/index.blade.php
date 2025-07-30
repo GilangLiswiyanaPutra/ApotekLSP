@@ -107,10 +107,14 @@
                                     {{-- [FIX] Mengembalikan Tombol Aksi yang Hilang --}}
                                     <td>
                                         <a href="{{ route('obats.edit', $obat->id) }}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
-                                        <form action="{{ route('obats.destroy', $obat->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus data ini?');">
+                                        <form action="{{ route('obats.destroy', $obat->id) }}" method="POST" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn" 
+                                                    data-nama="{{ $obat->nama }}"
+                                                    data-message="Yakin hapus obat '{{ $obat->nama }}'? Data akan dihapus permanen.">
+                                                <i class="mdi mdi-delete"></i>
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
@@ -144,6 +148,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle clickable rows
         document.querySelectorAll('.clickable-row').forEach(row => {
             row.addEventListener('click', function(e) {
                 // Mencegah navigasi jika yang diklik adalah elemen interaktif di dalam baris
@@ -151,6 +156,16 @@
                     return;
                 }
                 window.location.href = this.dataset.href;
+            });
+        });
+        
+        // Handle delete buttons with modal
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const message = this.getAttribute('data-message');
+                showDeleteModal(form, message);
             });
         });
     });
