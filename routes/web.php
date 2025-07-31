@@ -36,6 +36,16 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 //Rute untuk Obat
 Route::resource('obats', ObatController::class);
 
+// Rute untuk halaman obat dengan AJAX
+Route::get('/obat', function () {
+    return view('pages.obat');
+})->name('obat.page');
+
+// Rute API untuk AJAX data obat
+Route::get('/obat/data', [ObatController::class, 'getData'])->name('obat.data');
+Route::get('/obat/filters', [ObatController::class, 'getFilters'])->name('obat.filters');
+Route::post('/obat/store', [ObatController::class, 'apiStore'])->name('obat.store');
+
 //Rute untuk supplier
 Route::resource('suppliers', SupplierController::class);
 
