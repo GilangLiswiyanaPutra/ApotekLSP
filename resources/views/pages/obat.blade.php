@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>Manajemen Data Obat</title>
   <link rel="stylesheet" href="{{asset('vendors/mdi/css/materialdesignicons.min.css')}}">
   <link rel="stylesheet" href="{{asset('vendors/css/vendor.bundle.base.css')}}">
@@ -17,6 +18,16 @@
     /* Menambahkan pointer pada baris tabel agar terlihat bisa di-hover */
     .table-hover tbody tr:hover {
       cursor: pointer;
+    }
+    
+    /* Style untuk baris yang bisa diklik */
+    .clickable-row {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .clickable-row:hover {
+      background-color: #f8f9fa !important;
     }
   </style>
 </head>
@@ -231,7 +242,7 @@ $(document).ready(function() {
         }
         data.forEach((item, index) => {
             const rowHtml = `
-                <tr>
+                <tr class="clickable-row" data-href="/obats/${item.id}">
                     <td>${item.id}</td>
                     <td>${item.nama}</td>
                     <td><label class="badge badge-gradient-success">${item.jenis}</label></td>
@@ -240,12 +251,21 @@ $(document).ready(function() {
                     <td>${item.stok}</td>
                     <td>${item.supplier}</td>
                     <td>
-                        <button class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></button>
-                        <button class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button>
+                        <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();"><i class="mdi mdi-pencil"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();"><i class="mdi mdi-delete"></i></button>
                     </td>
                 </tr>
             `;
             tableBody.append(rowHtml);
+        });
+        
+        // Tambahkan event listener untuk baris yang bisa diklik
+        $('.clickable-row').off('click').on('click', function(e) {
+            // Mencegah navigasi jika yang diklik adalah elemen interaktif di dalam baris
+            if (e.target.closest('a, button, form')) {
+                return;
+            }
+            window.location.href = $(this).data('href');
         });
     }
 
@@ -290,7 +310,16 @@ $(document).ready(function() {
     // Submit form tambah data
     $('#addDataForm').on('submit', function(e) {
         e.preventDefault();
-        const formData = $(this).serialize(); // Ambil data form
+        
+        const formData = {
+            namaObat: $('#namaObat').val(),
+            jenisObat: $('#jenisObat').val(),
+            satuanObat: $('#satuanObat').val(),
+            hargaJual: $('#hargaJual').val(),
+            hargaBeli: $('#hargaBeli').val(),
+            stokObat: $('#stokObat').val(),
+            supplierObat: $('#supplierObat').val()
+        };
 
         $.ajax({
             url: STORE_URL,
@@ -304,12 +333,16 @@ $(document).ready(function() {
                     $('#dataModal').modal('hide');
                     $('#addDataForm')[0].reset();
                     fetchData(1); // Muat ulang data ke halaman pertama
-                    // Tampilkan notifikasi sukses jika ada
+                    alert('Data obat berhasil ditambahkan!');
                 }
             },
             error: function(err) {
                 console.error("Gagal menyimpan data:", err);
-                // Tampilkan pesan error validasi jika ada
+                if (err.responseJSON && err.responseJSON.message) {
+                    alert('Error: ' + err.responseJSON.message);
+                } else {
+                    alert('Gagal menyimpan data. Silakan coba lagi.');
+                }
             }
         });
     });

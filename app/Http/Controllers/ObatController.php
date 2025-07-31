@@ -162,4 +162,79 @@ class ObatController extends Controller
         $obat->delete();
         return redirect()->route('obats.index')->with('success', 'Data obat berhasil dihapus!');
     }
+
+    /**
+     * API untuk mendapatkan data obat dalam format JSON (untuk AJAX)
+     */
+    public function getData(Request $request)
+    {
+        $query = Obat::query();
+
+        $query->when($request->search, function ($q, $search) {
+            return $q->where('nama', 'like', "%{$search}%")
+                     ->orWhere('kode_obat', 'like', "%{$search}%");
+        });
+        $query->when($request->jenis, fn($q, $jenis) => $q->where('jenis', $jenis));
+        $query->when($request->supplier, fn($q, $supplier) => $q->where('supplier', $supplier));
+
+        $obats = $query->latest()->paginate(10)->withQueryString();
+        
+        return response()->json($obats);
+    }
+
+    /**
+     * API untuk mendapatkan data filter (jenis dan supplier) dalam format JSON
+     */
+    public function getFilters()
+    {
+        $jenis = Obat::select('jenis')->distinct()->pluck('jenis');
+        $suppliers = Obat::select('supplier')->distinct()->pluck('supplier');
+        
+        return response()->json([
+            'jenis' => $jenis,
+            'suppliers' => $suppliers
+        ]);
+    }
+
+    /**
+     * API untuk menyimpan obat baru via AJAX
+     */
+    public function apiStore(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'namaObat' => 'required|string|max:255|unique:obats,nama',
+                'jenisObat' => 'required|string|max:100',
+                'satuanObat' => 'required|string|max:50',
+                'hargaJual' => 'required|numeric|min:0',
+                'hargaBeli' => 'required|numeric|min:0',
+                'stokObat' => 'required|integer|min:1',
+                'supplierObat' => 'required|string|max:255',
+            ]);
+
+            $obat = Obat::create([
+                'nama' => $validated['namaObat'],
+                'jenis' => $validated['jenisObat'],
+                'satuan' => $validated['satuanObat'],
+                'harga_jual' => $validated['hargaJual'],
+                'harga_beli' => $validated['hargaBeli'],
+                'stok' => $validated['stokObat'],
+                'supplier' => $validated['supplierObat'],
+                'kode_obat' => 'OBT-' . strtoupper(Str::random(6)),
+                'tgl_kadaluarsa' => now()->addYear(), // Default 1 tahun dari sekarang
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data obat berhasil ditambahkan!',
+                'data' => $obat
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan obat: ' . $e->getMessage()
+            ], 422);
+        }
+    }
 }
