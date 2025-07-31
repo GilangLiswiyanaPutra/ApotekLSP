@@ -148,26 +148,53 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle clickable rows
+        // Handle clickable rows dengan debugging dan perbaikan
         document.querySelectorAll('.clickable-row').forEach(row => {
             row.addEventListener('click', function(e) {
                 // Mencegah navigasi jika yang diklik adalah elemen interaktif di dalam baris
-                if (e.target.closest('a, button, form')) {
+                if (e.target.closest('a, button, form, input, select')) {
+                    console.log('Clicked on interactive element, preventing navigation');
                     return;
                 }
-                window.location.href = this.dataset.href;
+                
+                // Debug: Log untuk memastikan event terpicu
+                console.log('Row clicked, data-href:', this.dataset.href);
+                
+                // Pastikan ada href sebelum navigasi
+                if (this.dataset.href) {
+                    console.log('Navigating to:', this.dataset.href);
+                    window.location.href = this.dataset.href;
+                } else {
+                    console.error('No href found in data-href attribute');
+                }
             });
+            
+            // Tambahkan visual feedback saat hover
+            row.style.cursor = 'pointer';
         });
         
         // Handle delete buttons with modal
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation(); // Prevent row click event
+                console.log('Delete button clicked');
                 const form = this.closest('form');
                 const message = this.getAttribute('data-message');
                 showDeleteModal(form, message);
             });
         });
+        
+        // Handle edit buttons - prevent row click when edit button is clicked
+        document.querySelectorAll('a[href*="edit"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent row click event
+                console.log('Edit button clicked');
+            });
+        });
+        
+        // Debug: Log jumlah clickable rows yang ditemukan
+        console.log('Found', document.querySelectorAll('.clickable-row').length, 'clickable rows');
     });
 </script>
 @endpush
