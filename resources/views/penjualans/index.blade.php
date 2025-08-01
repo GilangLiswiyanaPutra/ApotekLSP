@@ -215,7 +215,8 @@
                                          data-kode="{{ $obat->kode_obat }}"
                                          data-nama="{{ $obat->nama }}" 
                                          data-harga="{{ $obat->harga_jual }}" 
-                                         data-stok="{{ $obat->stok }}">
+                                         data-stok="{{ $obat->stok }}"
+                                         data-jenis="{{ $obat->jenis }}">
                                         
                                         <div class="medicine-type-badge">{{ $obat->jenis }}</div>
                                         <div class="stock-badge {{ $obat->stok <= 5 ? 'stock-low' : '' }}">
@@ -385,6 +386,135 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Detail Obat untuk Tambah ke Keranjang --}}
+<div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white" id="orderModalLabel">Detail Obat</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="product-image-modal text-center">
+                            <img id="modal-obat-image" src="" alt="Gambar Obat" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="product-details">
+                            <h5 class="text-white mb-3" id="modal-obat-nama"></h5>
+                            
+                            <div class="row mb-2">
+                                <div class="col-4"><strong class="text-muted">Kode:</strong></div>
+                                <div class="col-8"><span class="text-white" id="modal-obat-kode"></span></div>
+                            </div>
+                            
+                            <div class="row mb-2">
+                                <div class="col-4"><strong class="text-muted">Jenis Obat:</strong></div>
+                                <div class="col-8">
+                                    <span class="badge badge-info" id="modal-obat-jenis">-</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-2">
+                                <div class="col-4"><strong class="text-muted">Harga:</strong></div>
+                                <div class="col-8"><span class="text-success font-weight-bold" id="modal-obat-harga"></span></div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-4"><strong class="text-muted">Stok:</strong></div>
+                                <div class="col-8">
+                                    <span id="modal-obat-stok" class="text-warning"></span>
+                                    <small class="text-muted">pcs tersedia</small>
+                                </div>
+                            </div>
+                            
+                            <div class="quantity-selector mb-3">
+                                <label class="text-muted mb-2">Jumlah:</label>
+                                <div class="input-group" style="max-width: 150px;">
+                                    <div class="input-group-prepend">
+                                        <button type="button" class="btn btn-outline-secondary" id="decrease-modal-qty">-</button>
+                                    </div>
+                                    <input type="number" class="form-control text-center" id="modal-quantity" value="1" min="1" max="1">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" id="increase-modal-qty">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="add-to-cart-modal">
+                    <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Konfirmasi Transaksi --}}
+<div class="modal fade" id="transactionModal" tabindex="-1" role="dialog" aria-labelledby="transactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white" id="transactionModalLabel">Konfirmasi Transaksi</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="transaction-summary">
+                    <h6 class="text-white mb-3">Ringkasan Pembelian:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Obat</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-items">
+                                <!-- Items will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="total-summary">
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong class="text-white">Total Item:</strong></div>
+                                    <div class="col-6 text-right"><span id="modal-total-items" class="text-info"></span></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6"><strong class="text-white">TOTAL HARGA:</strong></div>
+                                    <div class="col-6 text-right">
+                                        <h5 id="modal-total-amount" class="text-success mb-0"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" id="confirm-transaction">
+                    <i class="fas fa-check"></i> Konfirmasi & Proses
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -474,7 +604,7 @@ window.addEventListener('load', function () {
                 // Show order modal
                 const medicineData = {
                     ...itemData,
-                    jenis: $card.closest('.product-item').data('type') || '',
+                    jenis: $card.data('jenis') || $card.closest('.product-item').data('type') || 'Umum',
                     gambar: $card.find('img').length > 0 ? $card.find('img').attr('src') : ''
                 };
                 showOrderModal(medicineData);
@@ -710,6 +840,105 @@ window.addEventListener('load', function () {
                 notification.alert('close');
             }, type === 'success' ? 2000 : 4000);
         }
+
+        // Implementation of showOrderModal function
+        window.showOrderModal = function(medicineData) {
+            // Populate modal with medicine data
+            $('#modal-obat-nama').text(medicineData.nama || 'Nama tidak tersedia');
+            $('#modal-obat-kode').text(medicineData.kode || '-');
+            $('#modal-obat-jenis').text(medicineData.jenis || 'Tidak ada jenis');
+            $('#modal-obat-harga').text(formatRupiah(medicineData.harga || 0));
+            $('#modal-obat-stok').text(medicineData.stok || 0);
+            
+            // Set image
+            const imageUrl = medicineData.gambar || '/images/placeholder-obat.png';
+            $('#modal-obat-image').attr('src', imageUrl);
+            
+            // Set quantity limits
+            const maxQty = medicineData.stok || 1;
+            $('#modal-quantity').attr('max', maxQty).val(1);
+            
+            // Store medicine data for later use
+            $('#orderModal').data('medicine', medicineData);
+            
+            // Show modal
+            $('#orderModal').modal('show');
+        };
+
+        // Implementation of showTransactionModal function
+        window.showTransactionModal = function(form, items, totalAmount) {
+            // Populate transaction items
+            const transactionItems = $('#transaction-items');
+            transactionItems.empty();
+            
+            let totalQty = 0;
+            items.forEach(item => {
+                const subtotal = item.harga * item.jumlah;
+                totalQty += item.jumlah;
+                
+                const row = `
+                    <tr>
+                        <td>
+                            <strong>${item.nama}</strong><br>
+                            <small class="text-muted">${item.kode}</small>
+                        </td>
+                        <td class="text-center">${item.jumlah}</td>
+                        <td class="text-right">${formatRupiah(item.harga)}</td>
+                        <td class="text-right">${formatRupiah(subtotal)}</td>
+                    </tr>
+                `;
+                transactionItems.append(row);
+            });
+            
+            // Update totals
+            $('#modal-total-items').text(totalQty + ' item' + (totalQty > 1 ? 's' : ''));
+            $('#modal-total-amount').text(formatRupiah(totalAmount));
+            
+            // Store form reference
+            $('#transactionModal').data('form', form);
+            
+            // Show modal
+            $('#transactionModal').modal('show');
+        };
+
+        // Modal quantity controls
+        $('#decrease-modal-qty').click(function() {
+            const input = $('#modal-quantity');
+            const currentVal = parseInt(input.val());
+            if (currentVal > 1) {
+                input.val(currentVal - 1);
+            }
+        });
+
+        $('#increase-modal-qty').click(function() {
+            const input = $('#modal-quantity');
+            const currentVal = parseInt(input.val());
+            const maxVal = parseInt(input.attr('max'));
+            if (currentVal < maxVal) {
+                input.val(currentVal + 1);
+            }
+        });
+
+        // Add to cart from modal
+        $('#add-to-cart-modal').click(function() {
+            const medicineData = $('#orderModal').data('medicine');
+            const quantity = parseInt($('#modal-quantity').val());
+            
+            if (medicineData && quantity > 0) {
+                addToCartFromModal(medicineData, quantity);
+                $('#orderModal').modal('hide');
+            }
+        });
+
+        // Confirm transaction
+        $('#confirm-transaction').click(function() {
+            const form = $('#transactionModal').data('form');
+            if (form) {
+                $('#transactionModal').modal('hide');
+                // Submit the actual form
+                form.submit();
+            }
+        });
 
         // Form submission validation
         $('#form-penjualan').on('submit', function(e) {

@@ -1,357 +1,293 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
+@section('title', 'Data Obat')
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Manajemen Data Obat</title>
-  <link rel="stylesheet" href="{{asset('vendors/mdi/css/materialdesignicons.min.css')}}">
-  <link rel="stylesheet" href="{{asset('vendors/css/vendor.bundle.base.css')}}">
-  <link rel="stylesheet" href="{{asset('vendors/jvectormap/jquery-jvectormap.css')}}">
-  <link rel="stylesheet" href="{{asset('vendors/flag-icon-css/css/flag-icon.min.css')}}">
-  <link rel="stylesheet" href="{{asset('vendors/owl-carousel-2/owl.carousel.min.css')}}">
-  <link rel="stylesheet" href="{{asset('vendors/owl-carousel-2/owl.theme.default.min.css')}}">
-  <link rel="stylesheet" href="{{asset('css/style.css')}}">
-  <link rel="shortcut icon" href="{{asset('images/favicon.png')}}" />
-  <style>
+@push('styles')
+<style>
     /* Menambahkan pointer pada baris tabel agar terlihat bisa di-hover */
     .table-hover tbody tr:hover {
-      cursor: pointer;
+        cursor: pointer;
     }
     
     /* Style untuk baris yang bisa diklik */
     .clickable-row {
-      cursor: pointer;
-      transition: background-color 0.2s ease;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
     }
     
     .clickable-row:hover {
-      background-color: #f8f9fa !important;
+        background-color: #f8f9fa !important;
     }
-  </style>
-</head>
+</style>
+@endpush
 
-<body>
-  <div class="container-scroller">
-    <nav class="sidebar sidebar-offcanvas" id="sidebar">
-      <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-        <a class="sidebar-brand brand-logo" href="index.html"><img src="{{asset('images/logo.svg')}}" alt="logo" /></a>
-        <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="{{asset('images/logo-mini.svg')}}" alt="logo" /></a>
-      </div>
-      <ul class="nav">
-        <li class="nav-item profile">
-          <div class="profile-desc">
-            <div class="profile-pic">
-              <div class="count-indicator">
-                <img class="img-xs rounded-circle " src="{{asset('images/faces/face15.jpg')}}" alt="">
-                <span class="count bg-success"></span>
-              </div>
-              <div class="profile-name">
-                <h5 class="mb-0 font-weight-normal">Henry Klein</h5>
-                <span>Gold Member</span>
-              </div>
-            </div>
-          </div>
-        </li>
-          <li class="nav-item nav-category"><span class="nav-link">Navigation</span></li>
-          <li class="nav-item menu-items"><a class="nav-link" href="/"><span class="menu-icon"><i class="mdi mdi-book-open-variant"></i></span><span class="menu-title">Dashboard</span></a></li>
-          <li class="nav-item menu-items"><a class="nav-link" href="/apoteker"><span class="menu-icon"><i class="mdi mdi-account-circle"></i></span><span class="menu-title">Data Apoteker</span></a></li>
-          <li class="nav-item menu-items active"><a class="nav-link" href="/obat"><span class="menu-icon"><i class="mdi mdi-pill"></i></span><span class="menu-title">Data Obat</span></a></li>
-          <li class="nav-item menu-items"><a class="nav-link" href="/supplier"><span class="menu-icon"><i class="mdi mdi-ambulance"></i></span><span class="menu-title">Data Supplier</span></a></li>
-          <li class="nav-item menu-items"><a class="nav-link" href="/pelanggan"><span class="menu-icon"><i class="mdi mdi-account-multiple"></i></span><span class="menu-title">Data Pelanggan</span></a></li>
-      </ul>
-    </nav>
-    <div class="container-fluid page-body-wrapper">
-      <div class="main-panel">
-        <div class="content-wrapper">
-          <div class="row">
-            <div class="col-lg-12 grid-margin stretch-card">
-              <div class="card">
+@section('content')
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Data Obat</h4>
-                  <p class="card-description">Daftar obat yang tersedia.</p>
-                  <div class="row mb-3">
-                    <div class="col-md-3">
-                      <button type="button" class="btn btn-primary btn-fw" data-toggle="modal" data-target="#dataModal">
-                        <i class="mdi mdi-plus"></i> Tambah Data
-                      </button>
+                    <h4 class="card-title">Data Obat</h4>
+                    <p class="card-description">Daftar obat yang tersedia.</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary btn-fw" data-toggle="modal" data-target="#dataModal">
+                                <i class="mdi mdi-plus"></i> Tambah Obat
+                            </button>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <select class="form-control" id="filterJenis">
+                                            <option value="">Semua Jenis</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <select class="form-control" id="filterSupplier">
+                                            <option value="">Semua Supplier</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <input type="text" id="searchInput" class="form-control" placeholder="Cari nama obat...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-9">
-                      <div class="row">
-                        <div class="col-md-4">
-                          <div class="form-group">
-                             <select class="form-control" id="filterJenis">
-                                <option value="">Semua Jenis</option>
-                             </select>
-                          </div>
-                        </div>
-                        <div class="col-md-4">
-                          <div class="form-group">
-                             <select class="form-control" id="filterSupplier">
-                                <option value="">Semua Supplier</option>
-                             </select>
-                          </div>
-                        </div>
-                        <div class="col-md-4">
-                          <div class="form-group">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Cari nama obat...">
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="table-responsive">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th>No</th>
-                          <th>Nama Obat</th>
-                          <th>Jenis</th>
-                          <th>Satuan</th>
-                          <th>Harga Jual</th>
-                          <th>Stok</th>
-                          <th>Supplier</th>
-                          <th>Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody id="dataTableBody">
-                        </tbody>
-                    </table>
-                  </div>
-                  <div class="d-flex justify-content-between mt-4">
-                    <div id="dataInfo">Menampilkan 0 dari 0 data</div>
-                    <nav>
-                      <ul class="pagination" id="pagination">
-                        </ul>
-                    </nav>
-                  </div>
-                  </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Obat</th>
+                                    <th>Jenis</th>
+                                    <th>Supplier</th>
+                                    <th>Harga Beli</th>
+                                    <th>Harga Jual</th>
+                                    <th>Stok</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <div id="dataInfo">Menampilkan 0 dari 0 data</div>
+                        <nav>
+                            <ul class="pagination" id="pagination"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Tambah Obat --}}
+<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="dataModalLabel">Tambah Data Obat</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dataModalLabel">Tambah Data Obat</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addDataForm">
+                    <div class="form-group">
+                        <label for="nama">Nama Obat</label>
+                        <input type="text" class="form-control" name="nama" id="nama" placeholder="Contoh: Paracetamol 500mg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="jenis">Jenis Obat</label>
+                        <select class="form-control" name="jenis" id="jenis" required>
+                            <option value="">Pilih Jenis</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Kapsul">Kapsul</option>
+                            <option value="Sirup">Sirup</option>
+                            <option value="Salep">Salep</option>
+                            <option value="Injeksi">Injeksi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplier">Supplier</label>
+                        <select class="form-control" name="supplier_id" id="supplier" required>
+                            <option value="">Pilih Supplier</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga_beli">Harga Beli</label>
+                        <input type="number" class="form-control" name="harga_beli" id="harga_beli" placeholder="Contoh: 5000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga_jual">Harga Jual</label>
+                        <input type="number" class="form-control" name="harga_jual" id="harga_jual" placeholder="Contoh: 7000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stok">Stok</label>
+                        <input type="number" class="form-control" name="stok" id="stok" placeholder="Contoh: 100" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="modal-body">
-          <form id="addDataForm">
-            <div class="form-group">
-              <label for="namaObat">Nama Obat</label>
-              <input type="text" class="form-control" id="namaObat" placeholder="Contoh: Paracetamol" required>
-            </div>
-            <div class="form-group">
-              <label for="jenisObat">Jenis Obat</label>
-              <input type="text" class="form-control" id="jenisObat" placeholder="Contoh: Tablet" required>
-            </div>
-            <div class="form-group">
-              <label for="satuanObat">Satuan</label>
-              <input type="text" class="form-control" id="satuanObat" placeholder="Contoh: Strip" required>
-            </div>
-            <div class="form-group">
-              <label for="hargaJual">Harga Jual (Rp)</label>
-              <input type="number" class="form-control" id="hargaJual" placeholder="Contoh: 15000" required>
-            </div>
-             <div class="form-group">
-              <label for="hargaBeli">Harga Beli (Rp)</label>
-              <input type="number" class="form-control" id="hargaBeli" placeholder="Contoh: 12000" required>
-            </div>
-            <div class="form-group">
-              <label for="stokObat">Stok</label>
-              <input type="number" class="form-control" id="stokObat" placeholder="Contoh: 100" required>
-            </div>
-            <div class="form-group">
-              <label for="supplierObat">Supplier</label>
-              <input type="text" class="form-control" id="supplierObat" placeholder="Contoh: PT. Kimia Farma" required>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-              <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
-  <script src="{{asset('vendors/js/vendor.bundle.base.js')}}"></script>
-  <script>
-$(document).ready(function() {
-    const API_URL = "{{ route('obat.data') }}";
-    const STORE_URL = "{{ route('obat.store') }}";
-    const FILTER_API_URL = "{{ route('obat.filters') }}";
+</div>
+@endsection
 
-    // Fungsi utama untuk mengambil data dari server
-    function fetchData(page = 1) {
-        const search = $('#searchInput').val();
-        const jenis = $('#filterJenis').val();
-        const supplier = $('#filterSupplier').val();
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        // [UBAH] Sesuaikan URL API ke rute obat
+        const API_URL = "{{ route('obat.data') }}";
+        const STORE_URL = "{{ route('obat.store') }}";
+        const FILTER_API_URL = "{{ route('obat.filters') }}";
 
-        $.ajax({
-            url: API_URL,
-            type: 'GET',
-            data: {
-                page: page,
-                search: search,
-                jenis: jenis,
-                supplier: supplier
-            },
-            success: function(response) {
-                renderTable(response.data); // 'data' adalah array obat dari paginator
-                renderPagination(response); // kirim seluruh objek paginator
-                updateDataInfo(response);
-            },
-            error: function(err) {
-                console.error("Gagal mengambil data:", err);
-                $('#dataTableBody').html('<tr><td colspan="8" class="text-center text-danger">Gagal memuat data.</td></tr>');
-            }
-        });
-    }
-    
-    // Fungsi untuk mengisi dropdown filter
-    function populateFilters() {
-        $.get(FILTER_API_URL, function(response) {
-            const jenisSelect = $('#filterJenis');
-            response.jenis.forEach(jenis => {
-                jenisSelect.append(`<option value="${jenis}">${jenis}</option>`);
+        function fetchData(page = 1) {
+            $.ajax({
+                url: API_URL,
+                type: 'GET',
+                data: {
+                    page: page,
+                    search: $('#searchInput').val(),
+                    jenis: $('#filterJenis').val(),
+                    supplier: $('#filterSupplier').val()
+                },
+                success: function(response) {
+                    renderTable(response.data);
+                    renderPagination(response);
+                    updateDataInfo(response);
+                },
+                error: function(err) {
+                    $('#dataTableBody').html('<tr><td colspan="8" class="text-center text-danger">Gagal memuat data.</td></tr>');
+                }
             });
-            
-            const supplierSelect = $('#filterSupplier');
-            response.suppliers.forEach(supplier => {
-                supplierSelect.append(`<option value="${supplier}">${supplier}</option>`);
-            });
-        });
-    }
-
-    // Fungsi untuk merender tabel (sedikit diubah)
-    function renderTable(data) {
-        const tableBody = $('#dataTableBody');
-        tableBody.empty();
-        if (data.length === 0) {
-            tableBody.append('<tr><td colspan="8" class="text-center">Data tidak ditemukan.</td></tr>');
-            return;
         }
-        data.forEach((item, index) => {
-            const rowHtml = `
-                <tr class="clickable-row" data-href="/obats/${item.id}">
-                    <td>${item.id}</td>
-                    <td>${item.nama}</td>
-                    <td><label class="badge badge-gradient-success">${item.jenis}</label></td>
-                    <td>${item.satuan}</td>
-                    <td>Rp ${new Intl.NumberFormat('id-ID').format(item.harga_jual)}</td>
-                    <td>${item.stok}</td>
-                    <td>${item.supplier}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();"><i class="mdi mdi-pencil"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();"><i class="mdi mdi-delete"></i></button>
-                    </td>
-                </tr>
-            `;
-            tableBody.append(rowHtml);
-        });
-        
-        // Tambahkan event listener untuk baris yang bisa diklik
-        $('.clickable-row').off('click').on('click', function(e) {
-            // Mencegah navigasi jika yang diklik adalah elemen interaktif di dalam baris
-            if (e.target.closest('a, button, form')) {
+
+        function populateFilters() {
+            $.get(FILTER_API_URL, function(response) {
+                // Populate jenis filter
+                const jenisSelect = $('#filterJenis');
+                if (response.jenis) {
+                    response.jenis.forEach(jenis => {
+                       jenisSelect.append(`<option value="${jenis}">${jenis}</option>`);
+                    });
+                }
+                
+                // Populate supplier filter and modal
+                const supplierSelect = $('#filterSupplier');
+                const supplierModal = $('#supplier');
+                if (response.suppliers) {
+                    response.suppliers.forEach(supplier => {
+                       supplierSelect.append(`<option value="${supplier.id}">${supplier.nama}</option>`);
+                       supplierModal.append(`<option value="${supplier.id}">${supplier.nama}</option>`);
+                    });
+                }
+            });
+        }
+
+        // [UBAH] renderTable untuk menampilkan data obat
+        function renderTable(data) {
+            const tableBody = $('#dataTableBody');
+            tableBody.empty();
+            if (data.length === 0) {
+                tableBody.append('<tr><td colspan="8" class="text-center">Data obat tidak ditemukan.</td></tr>');
                 return;
             }
-            window.location.href = $(this).data('href');
-        });
-    }
-
-    // Fungsi untuk merender paginasi (menggunakan data dari Laravel)
-    function renderPagination(paginator) {
-        const pagination = $('#pagination');
-        pagination.empty();
-        if (!paginator.links || paginator.links.length <= 3) return; // Jika hanya ada prev, current, next
-        
-        paginator.links.forEach(link => {
-            // Ganti &laquo; dan &raquo; dengan teks
-            let label = link.label.replace('&laquo; Previous', 'Previous').replace('Next &raquo;', 'Next');
-            
-            pagination.append(`
-                <li class="page-item ${link.active ? 'active' : ''} ${link.url === null ? 'disabled' : ''}">
-                    <a class="page-link" href="#" data-page="${link.url ? new URL(link.url).searchParams.get('page') : ''}">${label}</a>
-                </li>
-            `);
-        });
-    }
-    
-    function updateDataInfo(paginator) {
-        $('#dataInfo').text(`Menampilkan ${paginator.from || 0} - ${paginator.to || 0} dari ${paginator.total} data`);
-    }
-
-    // --- EVENT LISTENERS ---
-
-    // Filter
-    $('#searchInput, #filterJenis, #filterSupplier').on('keyup change', function() {
-        fetchData(1);
-    });
-
-    // Paginasi
-    $('#pagination').on('click', 'a', function(e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        if (page) {
-            fetchData(page);
+            data.forEach(item => {
+                const rowHtml = `
+                    <tr class="clickable-row" data-id="${item.id}">
+                        <td><span class="badge badge-dark">${item.kode_obat}</span></td>
+                        <td>${item.nama}</td>
+                        <td><span class="badge badge-info">${item.jenis}</span></td>
+                        <td>${item.supplier ? item.supplier.nama : '-'}</td>
+                        <td>Rp ${new Intl.NumberFormat('id-ID').format(item.harga_beli)}</td>
+                        <td>Rp ${new Intl.NumberFormat('id-ID').format(item.harga_jual)}</td>
+                        <td>
+                            <span class="badge ${item.stok <= 5 ? 'badge-danger' : 'badge-success'}">
+                                ${item.stok} pcs
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger"><i class="mdi mdi-delete"></i></button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.append(rowHtml);
+            });
         }
-    });
 
-    // Submit form tambah data
-    $('#addDataForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = {
-            namaObat: $('#namaObat').val(),
-            jenisObat: $('#jenisObat').val(),
-            satuanObat: $('#satuanObat').val(),
-            hargaJual: $('#hargaJual').val(),
-            hargaBeli: $('#hargaBeli').val(),
-            stokObat: $('#stokObat').val(),
-            supplierObat: $('#supplierObat').val()
-        };
+        function renderPagination(paginator) {
+            const pagination = $('#pagination');
+            pagination.empty();
+            if (!paginator.links || paginator.links.length <= 3) return;
+            paginator.links.forEach(link => {
+                let label = link.label.replace('&laquo; Previous', 'Previous').replace('Next &raquo;', 'Next');
+                pagination.append(`
+                    <li class="page-item ${link.active ? 'active' : ''} ${link.url === null ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${link.url ? new URL(link.url).searchParams.get('page') : ''}">${label}</a>
+                    </li>
+                `);
+            });
+        }
 
-        $.ajax({
-            url: STORE_URL,
-            type: 'POST',
-            data: formData,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Penting untuk keamanan Laravel
-            },
-            success: function(response) {
-                if(response.success) {
-                    $('#dataModal').modal('hide');
-                    $('#addDataForm')[0].reset();
-                    fetchData(1); // Muat ulang data ke halaman pertama
-                    alert('Data obat berhasil ditambahkan!');
-                }
-            },
-            error: function(err) {
-                console.error("Gagal menyimpan data:", err);
-                if (err.responseJSON && err.responseJSON.message) {
-                    alert('Error: ' + err.responseJSON.message);
-                } else {
-                    alert('Gagal menyimpan data. Silakan coba lagi.');
-                }
-            }
+        function updateDataInfo(paginator) {
+            $('#dataInfo').text(`Menampilkan ${paginator.from || 0} - ${paginator.to || 0} dari ${paginator.total} data`);
+        }
+
+        // Event Listeners
+        $('#searchInput, #filterJenis, #filterSupplier').on('keyup change', function() {
+            fetchData(1);
         });
+
+        $('#pagination').on('click', 'a', function(e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            if (page) fetchData(page);
+        });
+
+        $('#addDataForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: STORE_URL,
+                type: 'POST',
+                data: $(this).serialize(),
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function(response) {
+                    if(response.success) {
+                        $('#dataModal').modal('hide');
+                        $('#addDataForm')[0].reset();
+                        fetchData(1);
+                    }
+                },
+                error: function(err) {
+                    alert('Gagal menyimpan data!');
+                }
+            });
+        });
+
+        // Click event for table rows
+        $(document).on('click', '.clickable-row', function() {
+            const obatId = $(this).data('id');
+            // Implementasi detail obat jika diperlukan
+            console.log('Obat ID:', obatId);
+        });
+
+        // Inisialisasi
+        populateFilters();
+        fetchData();
     });
-
-    // --- INISIALISASI ---
-    populateFilters();
-    fetchData(); 
-});
 </script>
-  </body>
-
-</html>
+@endpush
