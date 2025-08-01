@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>@yield('title', 'Apotek App')</title>
+    <title>@yield('title', 'APOTECH - Sistem Manajemen Apotek')</title>
 
     {{-- Ini cara yang benar memanggil semua aset di Laravel 11 --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
