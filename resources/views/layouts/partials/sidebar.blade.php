@@ -88,7 +88,10 @@
                     <span class="menu-title">Pembelian</span>
                 </a>
             </li>
-            {{-- Transaksi Penjualan sekarang adalah halaman utama (dashboard) --}}
+        @endif
+        
+        {{-- Riwayat Penjualan ditampilkan untuk semua role (Admin, Apoteker, dan Pelanggan) --}}
+        @if(in_array(Auth::user()->role, ['admin', 'apoteker', 'pelanggan']))
             <li class="nav-item menu-items {{ Request::is('riwayat-penjualan') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('penjualans.riwayat') }}">
                     <span class="menu-icon"><i class="mdi mdi-history"></i></span>
