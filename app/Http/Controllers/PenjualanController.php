@@ -136,13 +136,13 @@ class PenjualanController extends Controller
     }
 
     /**
-     * Menghapus transaksi penjualan dan mengembalikan stok obat
+     * Menghapus transaksi penjualan
      * Route: DELETE /penjualans/{nota} (penjualans.destroy)
      * 
      * Fitur Delete Riwayat Penjualan:
      * 1. Menghapus transaksi individual dengan tombol "Hapus" di setiap kartu transaksi
      * 2. Menghapus multiple transaksi sekaligus dengan mode "Hapus Multiple"
-     * 3. Otomatis mengembalikan stok obat yang terjual saat transaksi dihapus
+     * 3. Menghapus riwayat tanpa mengembalikan stok obat
      * 4. Konfirmasi dengan SweetAlert2 sebelum penghapusan
      * 5. Menampilkan notifikasi sukses/error setelah operasi
      * 6. Menghapus data dari tabel 'penjualans' dan 'detail_penjualans'
@@ -152,16 +152,8 @@ class PenjualanController extends Controller
     {
         try {
             DB::transaction(function () use ($nota) {
-                // Cari penjualan dengan detailnya
-                $penjualan = Penjualan::with('details.obat')->findOrFail($nota);
-                
-                // Kembalikan stok untuk setiap obat yang terjual
-                foreach ($penjualan->details as $detail) {
-                    if ($detail->obat) {
-                        // Kembalikan stok obat
-                        $detail->obat->increment('stok', $detail->jumlah);
-                    }
-                }
+                // Cari penjualan
+                $penjualan = Penjualan::findOrFail($nota);
                 
                 // Hapus detail penjualan terlebih dahulu
                 DetailPenjualan::where('nota', $nota)->delete();
@@ -172,7 +164,7 @@ class PenjualanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Transaksi berhasil dihapus dan stok obat telah dikembalikan!'
+                'message' => 'Transaksi berhasil dihapus!'
             ]);
 
         } catch (Exception $e) {
@@ -199,18 +191,10 @@ class PenjualanController extends Controller
                 $deletedCount = 0;
                 
                 foreach ($request->nota_list as $nota) {
-                    // Cari penjualan dengan detailnya
-                    $penjualan = Penjualan::with('details.obat')->where('nota', $nota)->first();
+                    // Cari penjualan
+                    $penjualan = Penjualan::where('nota', $nota)->first();
                     
                     if ($penjualan) {
-                        // Kembalikan stok untuk setiap obat yang terjual
-                        foreach ($penjualan->details as $detail) {
-                            if ($detail->obat) {
-                                // Kembalikan stok obat
-                                $detail->obat->increment('stok', $detail->jumlah);
-                            }
-                        }
-                        
                         // Hapus detail penjualan terlebih dahulu
                         DetailPenjualan::where('nota', $nota)->delete();
                         
@@ -223,7 +207,7 @@ class PenjualanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} transaksi dan mengembalikan stok obat!"
+                'message' => "Berhasil menghapus {$deletedCount} transaksi!"
             ]);
 
         } catch (Exception $e) {
